@@ -8,9 +8,9 @@ public class CustomExceptions {
     private static final long serialVersionUID = -1451545022162714730L;
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public static class UserNotFoundException extends RuntimeException {
+    public static class FileNotFoundException extends RuntimeException {
 
-        public UserNotFoundException(String exception) {
+        public FileNotFoundException(String exception) {
             super(exception);
         }
     }

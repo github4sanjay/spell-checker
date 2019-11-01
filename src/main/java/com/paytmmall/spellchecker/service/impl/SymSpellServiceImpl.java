@@ -25,8 +25,8 @@ public class SymSpellServiceImpl implements SymSpellService {
     @Value("${dictionary.file.name}")
     private String dictionaryFileName;
 
-    @PostConstruct
-    private void init() throws IOException {
+    @Override
+    public void onStartup() throws IOException {
         int maxEditDistanceLookup = 3;
         symSpell = new SymSpell(-1, maxEditDistanceLookup, -1, 10);//, (byte)18);
         this.maxEditDistanceLookup = maxEditDistanceLookup;

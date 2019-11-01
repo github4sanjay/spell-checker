@@ -5,6 +5,8 @@ import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -24,7 +26,8 @@ public class UserQueryTokenNormaliser implements Normaliser {
     private UserQueryTokenCache userQueryTokenCache;
 
     public void normalise() throws IOException {
-        File file = new File(inputFileLocation+"/"+inputFileName);
+        Resource resource = new ClassPathResource(inputFileLocation+"/"+inputFileName);
+        File file = resource.getFile();
         BufferedReader br = new BufferedReader(new FileReader(file));
 
         String st ="";

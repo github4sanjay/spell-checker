@@ -4,21 +4,20 @@ import com.paytmmall.spellchecker.cache.CatalogTokenCache;
 import com.paytmmall.spellchecker.cache.EnglishDictionaryCache;
 import com.paytmmall.spellchecker.cache.UserQueryTokenCache;
 import com.paytmmall.spellchecker.dictionary.Constants;
+import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 
 @Service
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class DictionaryLoader {
 
     @Value("${dictionary.file.location}")
@@ -54,44 +53,10 @@ public class DictionaryLoader {
     @Autowired
     private UserQueryTokenCache userQueryTokenCache;
 
-//    public static  void readFileInMap(File file, Map<String, Double> Map) throws IOException{
-//        String st = "";
-//
-//        BufferedReader br = new BufferedReader(new FileReader(file));
-//        while ((st = br.readLine()) != null){
-//            String [] temp_row = st.split(" ");
-//            int len = temp_row.length;
-//            if (len < 2)
-//                continue;
-//
-//            String key = temp_row[len-2];
-//            key = key.trim();
-//            key = key.toLowerCase();
-//
-//            Double count = Double.parseDouble(temp_row[len-1]);
-//
-//            Map.put(key,count);
-//        }
-//
-//    }
-
-    @PostConstruct
-    public void init() throws IOException {
-
-//        File file_eng = new File(normalisedFileLocation+"/"+englishNormalisedFileName);
-//        File file_catalog = new File(normalisedFileLocation+"/"+catalogQueryNormalisedFileName);
-//        File file_user_queries = new File(normalisedFileLocation+"/"+userQueryNormalisedFileName);
+    public void onStartup() throws IOException {
 
         Map<String, Double> englishThresholdMap = new HashMap<>();
         Map<String, Double> catalogThresholdMap = new HashMap<>();
-
-//        Map<String, Double> catalogMap = new HashMap<>();
-//        Map<String, Double> englishMap = new HashMap<>();
-//        Map<String, Double> userMap = new HashMap<>();
-//
-//        readFileInMap(file_eng, englishMap);
-//        readFileInMap(file_catalog, catalogMap);
-//        readFileInMap(file_user_queries, userMap);
 
         // if key is found in english than add its value to catalog map and remove the etry from english map
         for(String key : catalogTokenCache.keySet()){
@@ -137,7 +102,8 @@ public class DictionaryLoader {
             }
         }
 
-        FileWriter fw = new FileWriter(dictionaryFileLocation+"/"+dictionaryFileName);
+        File file = ResourceUtil.getFile(dictionaryFileLocation+"/"+dictionaryFileName);
+        FileWriter fw = new FileWriter(file);
         for(String key : userQueryTokenCache.keySet()){
             fw.write(key+" "+userQueryTokenCache.get(key));
             fw.write("\n");
@@ -153,7 +119,7 @@ public class DictionaryLoader {
         fw.close();
         System.out.println("dictionary file write complete");
 
-        fw = new FileWriter(thresholdFileLocation+"/"+catalogThresholdFileName);
+        fw = new FileWriter(ResourceUtil.getFile(thresholdFileLocation+"/"+catalogThresholdFileName));
         for(String key : catalogThresholdMap.keySet()){
             fw.write(key+" "+catalogThresholdMap.get(key));
             fw.write("\n");
@@ -161,7 +127,7 @@ public class DictionaryLoader {
         fw.close();
         System.out.println("catalog threshold file write complete");
 
-        fw = new FileWriter(thresholdFileLocation+""+englishThresholdFileName);
+        fw = new FileWriter(ResourceUtil.getFile(thresholdFileLocation+"/"+englishThresholdFileName));
         for(String key : englishThresholdMap.keySet()){
             fw.write(key+" "+englishThresholdMap.get(key));
             fw.write("\n");

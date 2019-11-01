@@ -14,10 +14,10 @@ import java.util.Date;
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = {CustomExceptions.UserNotFoundException.class})
+    @ExceptionHandler(value = {CustomExceptions.FileNotFoundException.class})
     protected ResponseEntity<Object> handleNotFound(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),
-                "User not found");
+                "File not found");
         return new ResponseEntity<>(errorDetails, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
 

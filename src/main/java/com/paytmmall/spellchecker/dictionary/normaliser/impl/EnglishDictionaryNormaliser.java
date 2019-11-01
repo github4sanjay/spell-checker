@@ -5,6 +5,8 @@ import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -24,13 +26,11 @@ public class EnglishDictionaryNormaliser implements Normaliser {
     private EnglishDictionaryCache englishDictionaryCache;
 
     public void normalise() throws FileNotFoundException, IOException {
-        File file = new File(inputFileLocation+"/"+inputFileName);
+
+        Resource resource = new ClassPathResource(inputFileLocation+"/"+inputFileName);
+        File file = resource.getFile();
         BufferedReader br = new BufferedReader(new FileReader(file));
-
         String st ="";
-
-        //Map<String, Double> reverseSortedMap = new HashMap<>();
-
         double minimum = Double.MAX_VALUE;
         double maximum = Double.MIN_VALUE;
         Double count = 0.0;
@@ -59,7 +59,7 @@ public class EnglishDictionaryNormaliser implements Normaliser {
                count = Double.parseDouble(temp_row[len-1]);
             }
             catch (Exception e){
-                System.out.println("error occured in english dictionary while file read");
+                System.out.println("error occured in english dictionary while file read "+temp_row[len-1]);
                 continue;
             }
             if(count <minimum)minimum = count;
@@ -69,28 +69,11 @@ public class EnglishDictionaryNormaliser implements Normaliser {
             englishDictionaryCache.put(key,count);
         }
 
-
         for(String key : englishDictionaryCache.keySet()){
             double fetchedValue = englishDictionaryCache.get(key);
             double value = (Constants.ENGLISH_DICTIONARY_RANGE_MAX-Constants.ENGLISH_DICTIONARY_RANGE_MAX) *((fetchedValue-minimum)/(maximum- minimum))+Constants.ENGLISH_DICTIONARY_RANGE_MIN;
             englishDictionaryCache.put(key,value);
         }
-
-
-
-//        Map<String, Double> sortedByValueDesc = reverseSortedMap.entrySet()
-//                .stream()
-//                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-//                .collect(toMap(Map.Entry::getKey,
-//                        Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-//
-//
-//        FileWriter fw = new FileWriter(outputFileLocation+"/"+outputFileName);
-//        for(String key : sortedByValueDesc.keySet()){
-//            fw.write(key+" "+sortedByValueDesc.get(key));
-//            fw.write("\n");
-//        }
-//        fw.close();
        System.out.println("english dictionary tokens file write complete");
 
     }

@@ -32,9 +32,9 @@ public class SymSpell {
     private int maxLength;
     private Map<Integer, String[]> deletes;
     // Dictionary of unique correct spelling words, and the frequency count for each word.
-    private Map<String, Long> words;
+    private Map<String, Double> words;
     // Dictionary of unique words that are below the count threshold for being considered correct spellings.
-    private Map<String, Long> belowThresholdWords = new HashMap<>();
+    private Map<String, Double> belowThresholdWords = new HashMap<>();
     /// <summary>Spelling suggestion returned from lookup.</summary>
 
     /// <summary>Create a new instanc of SymSpell.SymSpell.</summary>
@@ -74,13 +74,13 @@ public class SymSpell {
     /// <returns>True if the word was added as a new correctly spelled word,
     /// or false if the word is added as a below threshold word, or updates an
     /// existing correctly spelled word.</returns>
-    public boolean createDictionaryEntry(String key, long count, SuggestionStage staging) {
+    public boolean createDictionaryEntry(String key, double count, SuggestionStage staging) {
         if (count <= 0) {
             if (this.countThreshold > 0)
                 return false; // no point doing anything if count is zero, as it can't change anything
             count = 0;
         }
-        long countPrevious;
+        double countPrevious;
 
         // look first in below threshold words, update count, and allow promotion to correct spelling word if count reaches threshold
         // threshold must be >1 for there to be the possibility of low threshold words
@@ -151,15 +151,13 @@ public class SymSpell {
     public boolean loadDictionary(String corpus, int termIndex, int countIndex) throws IOException {
         Resource resource = new ClassPathResource(corpus);
 
-        InputStream input = resource.getInputStream();
-
         File file = resource.getFile();
         //File file = new File(corpus);
         if (!file.exists()) return false;
 
         BufferedReader br = null;
         try {
-            br = Files.newBufferedReader(Paths.get(corpus), StandardCharsets.UTF_8);
+            br = new BufferedReader(new FileReader(file));
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
@@ -197,9 +195,9 @@ public class SymSpell {
                 String[] lineParts = line.split("\\s");
                 if (lineParts.length >= 2) {
                     String key = lineParts[termIndex];
-                    long count;
+                    double count;
                     try {
-                        count = Long.parseLong(lineParts[countIndex]);
+                        count = Double.parseDouble(lineParts[countIndex]);
                         //count = Long.parseUnsignedLong(lineParts[countIndex]);
                         createDictionaryEntry(key, count, staging);
                     } catch (NumberFormatException ex) {
@@ -238,7 +236,7 @@ public class SymSpell {
     }
 
     public void purgeBelowThresholdWords() {
-        belowThresholdWords = new HashMap<String, Long>();
+        belowThresholdWords = new HashMap<String, Double>();
     }
 
     /// <summary>Commit staged dictionary additions.</summary>
@@ -286,7 +284,7 @@ public class SymSpell {
         HashSet<String> consideredDeletes = new HashSet<>();
         // suggestions we've considered already
         HashSet<String> consideredSuggestions = new HashSet<>();
-        long suggestionCount;
+        double suggestionCount;
 
         // quick look for exact match
         if (words.containsKey(input)) {

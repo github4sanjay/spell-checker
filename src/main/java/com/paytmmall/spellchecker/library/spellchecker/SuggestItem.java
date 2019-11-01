@@ -9,13 +9,13 @@ public class SuggestItem implements Comparator<SuggestItem>, Comparable<SuggestI
     /// <summary>Edit distance between searched for word and suggestion.</summary>
     public int distance;
     /// <summary>Frequency of suggestion in the dictionary (a measure of how common the word is).</summary>
-    public long count;
+    public double count;
 
     /// <summary>Create a new instance of SymSpell.SuggestItem.</summary>
     /// <param name="term">The suggested word.</param>
     /// <param name="distance">Edit distance from search word.</param>
     /// <param name="count">Frequency of suggestion in dictionary.</param>
-    public SuggestItem(String term, int distance, long count) {
+    public SuggestItem(String term, int distance, double count) {
         this.term = term;
         this.distance = distance;
         this.count = count;
@@ -46,7 +46,7 @@ public class SuggestItem implements Comparator<SuggestItem>, Comparable<SuggestI
     @Override
     public int compareTo(SuggestItem other) {
         // order by distance ascending, then by frequency count descending
-        if (this.distance == other.distance) return Long.compare(other.count, this.count);
+        if (this.distance == other.distance) return Double.compare(other.count, this.count);
         return Integer.compare(this.distance, other.distance);
     }
 
