@@ -1,8 +1,7 @@
-# Singtel Assigment
+# Spell Checker
 
 ## Overview
-##### Animals modelling and rest-apis
-![Design Flow of Supply](./models.png)
+##### Architecture and rest-apis
 ##### RestApis Doc (Swagger UI) - http://localhost:8090/swagger-ui.html
 
 
@@ -15,7 +14,7 @@ These instructions will get you a copy of the project up and running on your loc
 What things you need to install the software and how to install them
 
 1. **JAVA 8**: [Install](https://www.oracle.com/technetwork/java/javase/overview/java8-2100321.html) It is requrired as application uses spring boot.
-2. Replace this path "/home/sanjayk/Paytm/demo" in application-dev.properties with any directory on your system
+
 ### Installing
 
 #### Local Installation
