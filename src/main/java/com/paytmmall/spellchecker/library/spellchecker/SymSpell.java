@@ -1,5 +1,6 @@
 package com.paytmmall.spellchecker.library.spellchecker;
 
+import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -149,9 +150,7 @@ public class SymSpell {
     /// <param name="countIndex">The column position of the frequency count.</param>
     /// <returns>True if file loaded, or false if file not found.</returns>
     public boolean loadDictionary(String corpus, int termIndex, int countIndex) throws IOException {
-        Resource resource = new ClassPathResource(corpus);
-
-        File file = resource.getFile();
+        File file = ResourceUtil.getFile(corpus);
         //File file = new File(corpus);
         if (!file.exists()) return false;
 
@@ -218,7 +217,7 @@ public class SymSpell {
     /// <param name="corpus">The path+filename of the file.</param>
     /// <returns>True if file loaded, or false if file not found.</returns>
     public boolean createDictionary(String corpus) {
-        File file = new File(corpus);
+        File file = ResourceUtil.getFile(corpus);
         if (!file.exists()) return false;
 
         SuggestionStage staging = new SuggestionStage(16384);
