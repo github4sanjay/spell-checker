@@ -22,4 +22,12 @@ public class CustomExceptions {
             super(exception);
         }
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public static class FileReadException  extends RuntimeException {
+
+        public FileReadException(String exception) {
+            super(exception);
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.paytmmall.spellchecker.dictionary.normaliser.impl;
 import com.paytmmall.spellchecker.cache.EnglishDictionaryCache;
 import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
+import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -25,10 +26,9 @@ public class EnglishDictionaryNormaliser implements Normaliser {
     @Autowired
     private EnglishDictionaryCache englishDictionaryCache;
 
+    @Override
     public void normalise() throws FileNotFoundException, IOException {
-
-        Resource resource = new ClassPathResource(inputFileLocation+"/"+inputFileName);
-        File file = resource.getFile();
+        File file = ResourceUtil.getFile(inputFileLocation+"/"+inputFileName);
         BufferedReader br = new BufferedReader(new FileReader(file));
         String st ="";
         double minimum = Double.MAX_VALUE;

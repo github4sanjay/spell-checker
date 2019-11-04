@@ -4,16 +4,13 @@ import com.paytmmall.spellchecker.library.spellchecker.SuggestItem;
 import com.paytmmall.spellchecker.library.spellchecker.SymSpell;
 import com.paytmmall.spellchecker.service.SymSpellService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
 @Service
-//@Order(2)
 public class SymSpellServiceImpl implements SymSpellService {
     private SymSpell.Verbosity suggestionVerbosity = SymSpell.Verbosity.All; //Top, Closest, All
     private int maxEditDistanceLookup; //max edit distance per lookup (maxEditDistanceLookup<=maxEditDistanceDictionary)

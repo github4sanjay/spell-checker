@@ -7,10 +7,6 @@ import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -134,7 +130,6 @@ public class DictionaryLoader {
         }
         fw.close();
         System.out.println("english threshold file write complete");
-
     }
 }
 

@@ -3,15 +3,12 @@ package com.paytmmall.spellchecker.dictionary.normaliser.impl;
 import com.paytmmall.spellchecker.cache.CatalogTokenCache;
 import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
+import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-
-import static java.util.stream.Collectors.toMap;
 
 @Service
 public class CatalogTokensNormaliser implements Normaliser {
@@ -25,9 +22,9 @@ public class CatalogTokensNormaliser implements Normaliser {
     @Autowired
     private CatalogTokenCache catalogTokenCache;
 
-    public void normalise() throws  IOException {
-        Resource resource = new ClassPathResource(inputFileLocation+"/"+inputFileName);
-        File file = resource.getFile();
+    @Override
+    public void normalise() throws IOException {
+        File file = ResourceUtil.getFile(inputFileLocation+"/"+inputFileName);
         BufferedReader br = new BufferedReader(new FileReader(file));
         String st ="";
         double minimum = Double.MAX_VALUE;
@@ -69,30 +66,12 @@ public class CatalogTokensNormaliser implements Normaliser {
         System.out.println(minimum);
         System.out.println(maximum);
 
-
         for(String key : catalogTokenCache.keySet()){
             double fetchedValue = catalogTokenCache.get(key);
             double value = (Constants.CATALOG_TOKENS_RANGE_MAX-Constants.CATALOG_TOKENS_RANGE_MIN) *((fetchedValue-minimum)/(maximum- minimum))+Constants.CATALOG_TOKENS_RANGE_MIN;
             catalogTokenCache.put(key,value);
         }
-//
-//
-//
-//        Map<String, Double> sortedByValueDesc = reverseSortedMap.entrySet()
-//                .stream()
-//                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-//                .collect(toMap(Map.Entry::getKey,
-//                        Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-//
-//
-//        FileWriter fw = new FileWriter(outputFileLocation+"/"+outputFileName);
-//        for(String key : sortedByValueDesc.keySet()){
-//            fw.write(key+" "+sortedByValueDesc.get(key));
-//            fw.write("\n");
-//        }
-//        fw.close();
         System.out.println("catalog tokens file write complete");
-
     }
 }
 

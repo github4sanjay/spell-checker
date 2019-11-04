@@ -3,15 +3,12 @@ package com.paytmmall.spellchecker.dictionary.normaliser.impl;
 import com.paytmmall.spellchecker.cache.UserQueryTokenCache;
 import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
+import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-
-import static java.util.stream.Collectors.toMap;
 
 @Service
 public class UserQueryTokenNormaliser implements Normaliser {
@@ -25,14 +22,12 @@ public class UserQueryTokenNormaliser implements Normaliser {
     @Autowired
     private UserQueryTokenCache userQueryTokenCache;
 
+    @Override
     public void normalise() throws IOException {
-        Resource resource = new ClassPathResource(inputFileLocation+"/"+inputFileName);
-        File file = resource.getFile();
+        File file = ResourceUtil.getFile(inputFileLocation+"/"+inputFileName);
         BufferedReader br = new BufferedReader(new FileReader(file));
 
         String st ="";
-
-        //Map<String, Double> reverseSortedMap = new HashMap<>();
         double minimum = Double.MAX_VALUE;
         double maximum = Double.MIN_VALUE;
 
@@ -57,7 +52,6 @@ public class UserQueryTokenNormaliser implements Normaliser {
             catch (Exception e){
                 continue;
             }
-
 
             for (int j = 0; j < query_len; j++) {
                 priority = clicks*.8 + impressions*.2;
@@ -100,27 +94,12 @@ public class UserQueryTokenNormaliser implements Normaliser {
         System.out.println(minimum);
         System.out.println(maximum);
 
-
         for(String key : userQueryTokenCache.keySet()){
             double fetchedValue = userQueryTokenCache.get(key);
             double value = (Constants.USER_QUERY_RANGE_MAX-Constants.USER_QUERY_RANGE_MIN) *((fetchedValue-minimum)/(maximum- minimum))+Constants.USER_QUERY_RANGE_MIN;
 
             userQueryTokenCache.put(key,value);
         }
-
-//        Map<String, Double> sortedByValueDesc = reverseSortedMap.entrySet()
-//                .stream()
-//                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-//                .collect(toMap(Map.Entry::getKey,
-//                        Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-//
-//
-//        FileWriter fw = new FileWriter(outputFileLocation+"/"+outputFileName);
-//        for(String key : sortedByValueDesc.keySet()){
-//            fw.write(key+" "+sortedByValueDesc.get(key));
-//            fw.write("\n");
-//        }
-//        fw.close();
         System.out.println("user query tokens file write complete");
     }
 }
