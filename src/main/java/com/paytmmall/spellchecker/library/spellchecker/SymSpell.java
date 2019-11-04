@@ -1,8 +1,10 @@
 package com.paytmmall.spellchecker.library.spellchecker;
 
+import com.paytmmall.spellchecker.cache.OriginalWordsCache;
 import com.paytmmall.spellchecker.util.ResourceUtil;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +14,13 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class SymSpell {
+
+
+    private OriginalWordsCache originalWordsCache;
+
+
     public enum Verbosity {
         Top,
         Closest,
@@ -33,7 +41,7 @@ public class SymSpell {
     private int maxLength;
     private Map<Integer, String[]> deletes;
     // Dictionary of unique correct spelling words, and the frequency count for each word.
-    private Map<String, Double> words;
+//    private Map<String, Double> words;
     // Dictionary of unique words that are below the count threshold for being considered correct spellings.
     private Map<String, Double> belowThresholdWords = new HashMap<>();
     /// <summary>Spelling suggestion returned from lookup.</summary>
@@ -47,7 +55,8 @@ public class SymSpell {
     /// <param name="prefixLength">The length of word prefixes used for spell checking..</param>
     /// <param name="countThreshold">The minimum frequency count for dictionary words to be considered correct spellings.</param>
     /// <param name="compactLevel">Degree of favoring lower memory use over speed (0=fastest,most memory, 16=slowest,least memory).</param>
-    public SymSpell(int initialCapacity, int maxDictionaryEditDistance, int prefixLength, int countThreshold)//,
+
+    public SymSpell(int initialCapacity, int maxDictionaryEditDistance, int prefixLength, int countThreshold,   OriginalWordsCache originalWordsCache)//,
     //byte compactLevel)
     {
         if (initialCapacity < 0) initialCapacity = defaultInitialCapacity;
@@ -57,12 +66,13 @@ public class SymSpell {
 //        compactLevel = (byte) defaultCompactLevel;   //TODO might be faulty...
 
         this.initialCapacity = initialCapacity;
-        this.words = new HashMap<>(initialCapacity);
+//        this.words = new HashMap<>(initialCapacity);
         this.maxDictionaryEditDistance = maxDictionaryEditDistance;
         this.prefixLength = prefixLength;
         this.countThreshold = countThreshold;
 //        if (compactLevel > 16) compactLevel = 16;
         this.compactMask = (0xffffffff >> (3 + defaultCompactLevel)) << 2;
+        this.originalWordsCache = originalWordsCache;
     }
 
     /// <summary>Create/Update an entry in the dictionary.</summary>
@@ -96,11 +106,11 @@ public class SymSpell {
                 belowThresholdWords.put(key, count); // = count;
                 return false;
             }
-        } else if (words.containsKey(key)) {
-            countPrevious = words.get(key);
+        } else if (originalWordsCache.get(key) != null) {
+            countPrevious = originalWordsCache.get(key);
             // just update count if it's an already added above threshold word
             count = (Long.MAX_VALUE - countPrevious > count) ? countPrevious + count : Long.MAX_VALUE;
-            words.put(key, count);
+            originalWordsCache.put(key, count);
             return false;
         } else if (count < countThreshold) {
             // new or existing below threshold word
@@ -109,7 +119,7 @@ public class SymSpell {
         }
 
         // what we have at this point is a new, above threshold word
-        words.put(key, count);
+        originalWordsCache.put(key, count);
 
         //edits/suggestions are created only once, no matter how often word occurs
         //edits/suggestions are created only as soon as the word occurs in the corpus,
@@ -286,8 +296,8 @@ public class SymSpell {
         double suggestionCount;
 
         // quick look for exact match
-        if (words.containsKey(input)) {
-            suggestionCount = words.get(input);
+        if (originalWordsCache.get(input) !=null) {
+            suggestionCount = originalWordsCache.get(input);
             suggestions.add(new SuggestItem(input, 0, suggestionCount));
             // early exit - return exact match, unless caller wants all matches
             if (verbosity != Verbosity.All) return suggestions;
@@ -377,7 +387,7 @@ public class SymSpell {
                     //save some time
                     //do not process higher distances than those already found, if verbosity<All (note: maxEditDistance2 will always equal maxEditDistance when Verbosity.All)
                     if (distance <= maxEditDistance2) {
-                        suggestionCount = words.get(suggestion);
+                        suggestionCount = originalWordsCache.get(suggestion);
                         SuggestItem si = new SuggestItem(suggestion, distance, suggestionCount);
                         if (suggestions.size() > 0) {
                             switch (verbosity) {

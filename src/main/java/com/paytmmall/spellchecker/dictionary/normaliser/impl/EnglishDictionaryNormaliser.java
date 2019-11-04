@@ -1,6 +1,7 @@
 package com.paytmmall.spellchecker.dictionary.normaliser.impl;
 
 import com.paytmmall.spellchecker.cache.EnglishDictionaryCache;
+import com.paytmmall.spellchecker.cache.OriginalWordsCache;
 import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
 import com.paytmmall.spellchecker.util.ResourceUtil;
