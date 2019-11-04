@@ -1,5 +1,7 @@
 package com.paytmmall.spellchecker.library.spellchecker;
 
+import com.paytmmall.spellchecker.cache.DeletesKeywords;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,21 +59,21 @@ public class SuggestionStage {
         nodes.add(new Node(suggestion, next));
     }
 
-    void commitTo(Map<Integer, String[]> permanentDeletes) {
+    void commitTo(DeletesKeywords deletesKeywords) {
         deletes.forEach((key, value) -> {
             int i;
             String[] suggestions;
-            if (permanentDeletes.containsKey(key)) {
-                suggestions = permanentDeletes.get(key);
+            if (deletesKeywords.get(key) != null) {
+                suggestions = deletesKeywords.get(key);
                 i = suggestions.length;
                 String[] newSuggestion = Arrays.copyOf(suggestions, i + value.count);
 
-                permanentDeletes.put(key, newSuggestion);
+                deletesKeywords.put(key, newSuggestion);
                 suggestions = newSuggestion;
             } else {
                 i = 0;
                 suggestions = new String[value.count];
-                permanentDeletes.put(key, suggestions);
+                deletesKeywords.put(key, suggestions);
             }
             int next = value.first;
             Node node;

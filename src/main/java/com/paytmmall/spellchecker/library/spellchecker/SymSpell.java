@@ -1,5 +1,6 @@
 package com.paytmmall.spellchecker.library.spellchecker;
 
+import com.paytmmall.spellchecker.cache.DeletesKeywords;
 import com.paytmmall.spellchecker.cache.Dictionary;
 import com.paytmmall.spellchecker.cache.OriginalWordsCache;
 import com.paytmmall.spellchecker.util.ResourceUtil;
@@ -16,6 +17,7 @@ public class SymSpell {
 
     private OriginalWordsCache originalWordsCache;
     private Dictionary dictionary;
+    private DeletesKeywords deletesKeywords;
 
     public enum Verbosity {
         Top,
@@ -35,7 +37,7 @@ public class SymSpell {
     private int compactMask;
     private EditDistance.DistanceAlgorithm distanceAlgorithm = EditDistance.DistanceAlgorithm.Damerau;
     private int maxLength;
-    private Map<Integer, String[]> deletes;
+//    private Map<Integer, String[]> deletes;
     // Dictionary of unique correct spelling words, and the frequency count for each word.
 //    private Map<String, Double> words;
     // Dictionary of unique words that are below the count threshold for being considered correct spellings.
@@ -52,7 +54,7 @@ public class SymSpell {
     /// <param name="countThreshold">The minimum frequency count for dictionary words to be considered correct spellings.</param>
     /// <param name="compactLevel">Degree of favoring lower memory use over speed (0=fastest,most memory, 16=slowest,least memory).</param>
 
-    public SymSpell(int initialCapacity, int maxDictionaryEditDistance, int prefixLength, int countThreshold, OriginalWordsCache originalWordsCache, Dictionary dictionary)
+    public SymSpell(int initialCapacity, int maxDictionaryEditDistance, int prefixLength, int countThreshold, OriginalWordsCache originalWordsCache, Dictionary dictionary, DeletesKeywords deletesKeywords)
     //byte compactLevel)
     {
         if (initialCapacity < 0) initialCapacity = defaultInitialCapacity;
@@ -70,6 +72,7 @@ public class SymSpell {
         this.compactMask = (0xffffffff >> (3 + defaultCompactLevel)) << 2;
         this.originalWordsCache = originalWordsCache;
         this.dictionary = dictionary;
+        this.deletesKeywords = deletesKeywords;
     }
 
     /// <summary>Create/Update an entry in the dictionary.</summary>
@@ -130,19 +133,17 @@ public class SymSpell {
         if (staging != null) {
             edits.forEach(delete -> staging.add(getStringHash(delete), key));
         } else {
-            if (deletes == null) this.deletes = new HashMap<>(initialCapacity); //initialisierung
-
             edits.forEach(delete -> {
                 int deleteHash = getStringHash(delete);
                 String[] suggestions;
-                if (deletes.containsKey(deleteHash)) {
-                    suggestions = deletes.get(deleteHash);
+                if (deletesKeywords.get(deleteHash) != null) {
+                    suggestions = deletesKeywords.get(deleteHash);
                     String[] newSuggestions = Arrays.copyOf(suggestions, suggestions.length + 1);
-                    deletes.put(deleteHash, newSuggestions);
+                    deletesKeywords.put(deleteHash, newSuggestions);
                     suggestions = newSuggestions;
                 } else {
                     suggestions = new String[1];
-                    deletes.put(deleteHash, suggestions);
+                    deletesKeywords.put(deleteHash, suggestions);
                 }
                 suggestions[suggestions.length - 1] = key;
             });
@@ -201,7 +202,7 @@ public class SymSpell {
             createDictionaryEntry(key, dictionary.get(key),staging);
         }
 
-        if (this.deletes == null) this.deletes = new HashMap<>(staging.deleteCount());
+//        if (this.deletes == null) this.deletes = new HashMap<>(staging.deleteCount());
         commitStaged(staging);
         return true;
     }
@@ -223,7 +224,6 @@ public class SymSpell {
             System.out.println(ex.getMessage());
         }
 
-        if (this.deletes == null) this.deletes = new HashMap<>(staging.deleteCount());
         commitStaged(staging);
         return true;
     }
@@ -238,7 +238,7 @@ public class SymSpell {
     /// object, and passed that to createDictionaryEntry calls.</remarks>
     /// <param name="staging">The SymSpell.SuggestionStage object storing the staged data.</param>
     public void commitStaged(SuggestionStage staging) {
-        staging.commitTo(deletes);
+        staging.commitTo(deletesKeywords);
     }
 
     /// <summary>Find suggested spellings for a given input word, using the maximum
@@ -317,8 +317,8 @@ public class SymSpell {
 
             int stringHash = getStringHash(candidate);
             //read candidate entry from dictionary
-            if (deletes.containsKey(stringHash)) {
-                String[] dictSuggestions = deletes.get(stringHash);
+            if (deletesKeywords.get(stringHash) != null) {
+                String[] dictSuggestions = deletesKeywords.get(stringHash);
                 //iterate through suggestions (to other correct dictionary items) of delete item and add them to suggestion list
                 for (String suggestion : dictSuggestions) {
                     if (suggestion.equals(input)) continue;

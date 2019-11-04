@@ -11,13 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/**
- * Contains the custom metrics to be pushed to datadog
- *
- * @author himanshujain
- * @version 1.0
- * @created 17-09-2018
- */
 
 @Component
 public class MetricsAgent {

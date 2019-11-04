@@ -19,5 +19,5 @@ public interface CacheApi<K, V> {
 
     ConcurrentMap<K, V> getAll();
 
-    Set<String> keySet();
+    Set<K> keySet();
 }
