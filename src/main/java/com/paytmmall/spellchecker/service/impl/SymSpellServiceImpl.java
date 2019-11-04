@@ -48,8 +48,8 @@ public class SymSpellServiceImpl implements SymSpellService {
     }
 
     @Override
-    public List<SuggestItem> lookup(String input){
-        return symSpell.lookup(input, suggestionVerbosity, maxEditDistanceLookup);
+    public List<SuggestItem> lookup(String input, Integer editDistance){
+        return symSpell.lookup(input, suggestionVerbosity, editDistance);
     }
 
     @Override

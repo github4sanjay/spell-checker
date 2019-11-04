@@ -18,7 +18,7 @@ public class SuggestItemResource {
 
     @GetMapping("/")
     @ResponseBody
-    public ResponseEntity<List<SuggestItem>> getSuggestItems(@RequestParam String input){
-        return new ResponseEntity<>(suggestItemService.getSuggestItems(input), HttpStatus.OK);
+    public ResponseEntity<List<SuggestItem>> getSuggestItems(@RequestParam String input, @RequestParam Integer editDistance){
+        return new ResponseEntity<>(suggestItemService.getSuggestItems(input, editDistance), HttpStatus.OK);
     }
 }

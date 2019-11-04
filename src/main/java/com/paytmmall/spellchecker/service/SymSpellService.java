@@ -9,6 +9,6 @@ public interface SymSpellService {
 
     void onStartup() throws IOException;
 
-    public List<SuggestItem> lookup(String input);
+    public List<SuggestItem> lookup(String input, Integer editDistance);
     public SuggestItem lookupCompound(String input);
 }

@@ -14,7 +14,7 @@ public class SuggestItemServiceImpl implements SuggestItemService {
     private SymSpellServiceImpl symSpellService;
 
     @Override
-    public List<SuggestItem> getSuggestItems(String input) {
-        return symSpellService.lookup(input);
+    public List<SuggestItem> getSuggestItems(String input, Integer editDistance) {
+        return symSpellService.lookup(input, editDistance);
     }
 }
