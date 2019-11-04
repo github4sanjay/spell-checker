@@ -1,0 +1,95 @@
+[1mdiff --git a/pom.xml b/pom.xml[m
+[1mindex 88bee84..d0f3cbf 100644[m
+[1m--- a/pom.xml[m
+[1m+++ b/pom.xml[m
+[36m@@ -69,6 +69,14 @@[m
+ 			<artifactId>spring-boot-starter-actuator</artifactId>[m
+ 		</dependency>[m
+ [m
+[32m+[m		[32m<!-- Dependency For Datadog / to push system info and api response time[m
+[32m+[m			[32mto datadog -->[m
+[32m+[m		[32m<dependency>[m
+[32m+[m			[32m<groupId>com.datadoghq</groupId>[m
+[32m+[m			[32m<artifactId>java-dogstatsd-client</artifactId>[m
+[32m+[m			[32m<version>2.3</version>[m
+[32m+[m		[32m</dependency>[m
+[32m+[m
+ 	</dependencies>[m
+ [m
+ 	<build>[m
+[1mdiff --git a/src/main/java/com/paytmmall/spellchecker/grafana/MetricsAgent.java b/src/main/java/com/paytmmall/spellchecker/grafana/MetricsAgent.java[m
+[1mindex 2e35b17..bc55251 100644[m
+[1m--- a/src/main/java/com/paytmmall/spellchecker/grafana/MetricsAgent.java[m
+[1m+++ b/src/main/java/com/paytmmall/spellchecker/grafana/MetricsAgent.java[m
+[36m@@ -1,4 +1,279 @@[m
+ package com.paytmmall.spellchecker.grafana;[m
+ [m
+[32m+[m
+[32m+[m[32mimport javax.annotation.PostConstruct;[m
+[32m+[m
+[32m+[m[32mimport com.timgroup.statsd.NonBlockingStatsDClient;[m
+[32m+[m[32mimport com.timgroup.statsd.StatsDClient;[m
+[32m+[m[32mimport com.timgroup.statsd.StatsDClientErrorHandler;[m
+[32m+[m[32mimport org.slf4j.Logger;[m
+[32m+[m[32mimport org.slf4j.LoggerFactory;[m
+[32m+[m[32mimport org.springframework.beans.factory.annotation.Value;[m
+[32m+[m[32mimport org.springframework.stereotype.Component;[m
+[32m+[m
+[32m+[m[32m/**[m
+[32m+[m[32m * Contains the custom metrics to be pushed to datadog[m
+[32m+[m[32m *[m
+[32m+[m[32m * @author himanshujain[m
+[32m+[m[32m * @version 1.0[m
+[32m+[m[32m * @created 17-09-2018[m
+[32m+[m[32m */[m
+[32m+[m
+[32m+[m[32m@Component[m
+ public class MetricsAgent {[m
+[32m+[m
+[32m+[m[32m    public enum Metric {[m
+[32m+[m[32m        SUCCESS, FAILURE, PENDING, HIT[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    private StatsDClient metricClient;[m
+[32m+[m
+[32m+[m[32m    private StatsDClient prometheusClient;[m
+[32m+[m
+[32m+[m[32m    @Value("${datadog.prefix}")[m
+[32m+[m[32m    private String DATADOG_PREFIX;[m
+[32m+[m
+[32m+[m[32m    @Value("${datadog.hostname}")[m
+[32m+[m[32m    private String DATADOG_HOSTNAME;[m
+[32m+[m
+[32m+[m[32m    @Value("${datadog.port}")[m
+[32m+[m[32m    private int DATADOG_PORT;[m
+[32m+[m
+[32m+[m[32m    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsAgent.class);[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    @Value("${search.env}")[m
+[32m+[m[32m    private String search_es_feeder_env;[m
+[32m+[m
+[32m+[m[32m    @PostConstruct[m
+[32m+[m[32m    public void init() {[m
+[32m+[m[32m        StatsDClientErrorHandler errorHandler = new StatsDClientErrorHandler() {[m
+[32m+[m
+[32m+[m[32m            @Override[m
+[32m+[m[32m            public void handle(Exception exception) {[m
+[32m+[m[32m                LOGGER.error("Error in submitting Datadog metrics over wire :{}",[m
+[32m+[m[32m                        exception.getMessage());[m
+[32m+[m
+[32m+[m[32m            }[m
+[32m+[m[32m        };[m
+[32m+[m[32m        // message will be rejected if internal linkedblockingqueue is full (>queueSize) and there[m
+[32m+[m[32m        // is no trace of such events.[m
+[32m+[m[32m        // For trace we need to override send method but can't override class as[m
+[32m+[m[32m        // NonBlockingStatsDClient is final[m
+[32m+[m[32m        metricClient =[m
+[32m+[m[32m                new NonBlockingStatsDClient(DATADOG_PREFIX, DATADOG_HOSTNAME,[m
+[32m+[m[32m                        DATADOG_PORT,[m
+[32m+[m[32m                        new String[]{"application:" + DATADOG_PREFIX,[m
+[32m+[m[32m                                "environment:" + search_es_feeder_env},[m
+[32m+[m[32m                        errorHandler);[m
+[32m+[m
+[32m+[m[32m        prometheusClient =[m
+[32m+[m[32m   
