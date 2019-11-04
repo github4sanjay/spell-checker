@@ -2,10 +2,6 @@ package com.paytmmall.spellchecker.library.spellchecker;
 
 import com.paytmmall.spellchecker.cache.OriginalWordsCache;
 import com.paytmmall.spellchecker.util.ResourceUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -17,9 +13,7 @@ import java.util.regex.Pattern;
 
 public class SymSpell {
 
-
     private OriginalWordsCache originalWordsCache;
-
 
     public enum Verbosity {
         Top,

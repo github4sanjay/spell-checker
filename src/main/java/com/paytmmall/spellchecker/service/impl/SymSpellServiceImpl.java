@@ -27,11 +27,11 @@ public class SymSpellServiceImpl implements SymSpellService {
     @Autowired
     private OriginalWordsCache originalWordsCache;
 
-
     @Override
     public void onStartup() throws IOException {
         int maxEditDistanceLookup = 3;
-        symSpell = new SymSpell(-1, maxEditDistanceLookup, -1, 10, originalWordsCache);//, (byte)18);
+        symSpell = new SymSpell(-1, maxEditDistanceLookup, -1, 1, originalWordsCache);//, (byte)18);
+        
         this.maxEditDistanceLookup = maxEditDistanceLookup;
         int termIndex = 0;
         int countIndex = 1;
