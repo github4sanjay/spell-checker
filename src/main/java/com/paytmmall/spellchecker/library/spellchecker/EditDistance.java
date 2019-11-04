@@ -1,9 +1,6 @@
 package com.paytmmall.spellchecker.library.spellchecker;
 
 public class EditDistance {
-    public enum DistanceAlgorithm{
-        Damerau
-    }
     private String baseString;
     private DistanceAlgorithm algorithm;
     private int[] v0;
@@ -11,8 +8,7 @@ public class EditDistance {
     /// <summary>Create a new EditDistance object.</summary>
     /// <param name="baseString">The base string to which other strings will be compared.</param>
     /// <param name="algorithm">The desired edit distance algorithm.</param>
-    EditDistance(String baseString, DistanceAlgorithm algorithm)
-    {
+    EditDistance(String baseString, DistanceAlgorithm algorithm) {
         this.baseString = baseString;
         this.algorithm = algorithm;
         if (this.baseString.isEmpty()) {
@@ -24,6 +20,7 @@ public class EditDistance {
             v2 = new int[baseString.length()]; // stores one level further back (offset by +1 position)
         }
     }
+
     // <summary>compare a string to the base string to determine the edit distance,
     /// using the previously selected algorithm.</summary>
     /// <param name="string2">The string to compare.</param>
@@ -31,10 +28,12 @@ public class EditDistance {
     /// <returns>The edit distance (or -1 if maxDistance exceeded).</returns>
     public int compare(String string2, int maxDistance) {
         switch (algorithm) {
-            case Damerau: return DamerauLevenshteinDistance(string2, maxDistance);
+            case Damerau:
+                return DamerauLevenshteinDistance(string2, maxDistance);
         }
         throw new IllegalArgumentException("unknown DistanceAlgorithm");
     }
+
     // stores one level further back (offset by +1 position)
     /// <param name="string1">String being compared for distance.</param>
     /// <param name="string2">String being compared against other string.</param>
@@ -44,7 +43,7 @@ public class EditDistance {
     public int DamerauLevenshteinDistance(String string2, int maxDistance) {
         if (baseString == null) return string2 == null ? 0 : string2.length(); //string2 ?? "").Length;
         if (string2 == null || string2.isEmpty()) return baseString.length();
-        if(maxDistance == 0) return baseString.equals(string2) ? 0 : -1;
+        if (maxDistance == 0) return baseString.equals(string2) ? 0 : -1;
 
         // if strings of different lengths, ensure shorter string is in string1. This can result in a little
         // faster speed by spending more time spinning just the inner loop during the main processing.
@@ -59,7 +58,10 @@ public class EditDistance {
         int tLen = string2.length();
 
         // suffix common to both strings can be ignored
-        while ((sLen > 0) && (string1.charAt(sLen - 1) == string2.charAt(tLen - 1))) { sLen--; tLen--; }
+        while ((sLen > 0) && (string1.charAt(sLen - 1) == string2.charAt(tLen - 1))) {
+            sLen--;
+            tLen--;
+        }
 
         int start = 0;
         if ((string1.charAt(0) == string2.charAt(0)) || (sLen == 0)) { // if there'string1 a shared prefix, or all string1 matches string2'string1 suffix
@@ -79,12 +81,11 @@ public class EditDistance {
             maxDistance = tLen;
         } else if (lenDiff > maxDistance) return -1;
 
-        if (tLen > v0.length)
-        {
+        if (tLen > v0.length) {
             v0 = new int[tLen];
             v2 = new int[tLen];
         } else {
-            for(int i = 0; i < tLen; i++) v2[i] = 0;    // Substituting Array.clear(v2, 0, tLen)
+            for (int i = 0; i < tLen; i++) v2[i] = 0;    // Substituting Array.clear(v2, 0, tLen)
         }
         int j;
         for (j = 0; j < maxDistance; j++) v0[j] = j + 1;
@@ -98,7 +99,7 @@ public class EditDistance {
         int current = 0;
         for (int i = 0; i < sLen; i++) {
             char prevsChar = sChar;
-            sChar = string1.charAt(start+i);
+            sChar = string1.charAt(start + i);
             char tChar = string2.charAt(0);
             int left = i;
             current = left + 1;
@@ -131,5 +132,9 @@ public class EditDistance {
             if (haveMax && (v0[i + lenDiff] > maxDistance)) return -1;
         }
         return (current <= maxDistance) ? current : -1;
+    }
+
+    public enum DistanceAlgorithm {
+        Damerau
     }
 }

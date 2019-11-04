@@ -49,7 +49,7 @@ public class UserQueryTokenCache implements CacheApi<String, Double> {
     }
 
     @Override
-    public Set<String> keySet(){
+    public Set<String> keySet() {
         ConcurrentMap<String, Double> stringGenericCacheDTOConcurrentMap =
                 cache.asMap();
         return stringGenericCacheDTOConcurrentMap.keySet();

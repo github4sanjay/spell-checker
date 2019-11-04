@@ -11,12 +11,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class SpellCheckerApplicationTests {
 
-	@Before
-	public void before(){
-	}
+    @Before
+    public void before() {
+    }
 
-	@Test
-	public void sampleTest() throws IllegalAccessException {
+    @Test
+    public void sampleTest() throws IllegalAccessException {
 
-	}
+    }
 }

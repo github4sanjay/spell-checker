@@ -1,8 +1,6 @@
 package com.paytmmall.spellchecker.grafana;
 
 
-import javax.annotation.PostConstruct;
-
 import com.timgroup.statsd.NonBlockingStatsDClient;
 import com.timgroup.statsd.StatsDClient;
 import com.timgroup.statsd.StatsDClientErrorHandler;
@@ -11,14 +9,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 
 @Component
 public class MetricsAgent {
 
-    public enum Metric {
-        SUCCESS, FAILURE, PENDING, HIT
-    }
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsAgent.class);
     private StatsDClient prometheusClient;
 
     @Value("${datadog.prefix}")
@@ -29,10 +26,6 @@ public class MetricsAgent {
 
     @Value("${datadog.port}")
     private int DATADOG_PORT;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsAgent.class);
-
-
     @Value("${env}")
     private String search_spell_checker_env;
 
@@ -60,7 +53,6 @@ public class MetricsAgent {
                         errorHandler);
     }
 
-
     /**
      * Used to record execution time of api
      */
@@ -75,7 +67,7 @@ public class MetricsAgent {
      */
     public void incrementApiCount(String apiName) {
 
-              prometheusClient.increment("api_count", "api_name:" + apiName,
+        prometheusClient.increment("api_count", "api_name:" + apiName,
                 "environment:" + search_spell_checker_env);
     }
 
@@ -109,8 +101,6 @@ public class MetricsAgent {
         prometheusClient.increment("fn_count", "fn_name:" + fnName, "fn_type:" + fnType,
                 "environment:" + search_spell_checker_env);
     }
-
-
 
     public void recordPSPDataCounts(String eventName, long delta, String range) {
 
@@ -209,5 +199,9 @@ public class MetricsAgent {
         prometheusClient.increment(eventName, "code:" + eventName,
                 "environment:" + search_spell_checker_env,
                 "threadName:" + Thread.currentThread().getName());
+    }
+
+    public enum Metric {
+        SUCCESS, FAILURE, PENDING, HIT
     }
 }

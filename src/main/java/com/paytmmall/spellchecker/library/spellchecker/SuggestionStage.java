@@ -11,39 +11,29 @@ import java.util.Map;
 /// data during the building of the dictionary data, significant savings
 /// of time can be achieved, as well as a reduction in final memory usage.</summary>
 public class SuggestionStage {
+    public Map<Integer, Entry> deletes; // {get; set; }
+    public ChunkArray<Node> nodes;
+
     SuggestionStage(int initialCapacity) { // initialCapacity = 16384
         deletes = new HashMap<>(initialCapacity);
         nodes = new ChunkArray<Node>(initialCapacity * 2); // 32768
     }
 
-    public class Node {
-        public String suggestion;
-        public int next;
-        public Node(String suggestion, int next) {
-            this.suggestion = suggestion;
-            this.next = next;
-        }
+    /// <summary>Gets the count of unique delete words.</summary>
+    public int deleteCount() {
+        return deletes.size();
     }
-    public class Entry {
-        public int count;
-        public int first;
-        Entry(int count, int first) {
-            this.count = count;
-            this.first = first;
-        }
+
+    /// <summary>Gets the total count of all suggestions for all deletes.</summary>
+    public int nodeCount() {
+        return nodes.count;
     }
-    public Map<Integer, Entry> deletes; // {get; set; }
-    public ChunkArray<Node> nodes;
     /// <summary>Create a new instance of SymSpell.SuggestionStage.</summary>
     /// <remarks>Specifying ann accurate initialCapacity is not essential,
     /// but it can help speed up processing by aleviating the need for
     /// data restructuring as the size grows.</remarks>
     /// <param name="initialCapacity">The expected number of words that will be added.</param>
 
-    /// <summary>Gets the count of unique delete words.</summary>
-    public int deleteCount() { return deletes.size(); }
-    /// <summary>Gets the total count of all suggestions for all deletes.</summary>
-    public int nodeCount() { return nodes.count; }
     /// <summary>Clears all the data from the SuggestionStaging.</summary>
     public void clear() {
         deletes.clear();
@@ -84,5 +74,25 @@ public class SuggestionStage {
                 i++;
             }
         });
+    }
+
+    public class Node {
+        public String suggestion;
+        public int next;
+
+        public Node(String suggestion, int next) {
+            this.suggestion = suggestion;
+            this.next = next;
+        }
+    }
+
+    public class Entry {
+        public int count;
+        public int first;
+
+        Entry(int count, int first) {
+            this.count = count;
+            this.first = first;
+        }
     }
 }

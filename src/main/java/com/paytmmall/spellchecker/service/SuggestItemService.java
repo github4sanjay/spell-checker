@@ -1,7 +1,6 @@
 package com.paytmmall.spellchecker.service;
 
 import com.paytmmall.spellchecker.library.spellchecker.SuggestItem;
-import io.swagger.models.auth.In;
 
 import java.util.List;
 

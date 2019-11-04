@@ -4,6 +4,7 @@ import com.paytmmall.spellchecker.cache.DeletesKeywords;
 import com.paytmmall.spellchecker.cache.Dictionary;
 import com.paytmmall.spellchecker.cache.OriginalWordsCache;
 import com.paytmmall.spellchecker.util.ResourceUtil;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,21 +16,18 @@ import java.util.regex.Pattern;
 
 public class SymSpell {
 
-    private OriginalWordsCache originalWordsCache;
-    private Dictionary dictionary;
-    private DeletesKeywords deletesKeywords;
-
-    public enum Verbosity {
-        Top,
-        Closest,
-        All
-    }
-
     private static int defaultMaxEditDistance = 2;
     private static int defaultPrefixLength = 7;
     private static int defaultCountThreshold = 1;
     private static int defaultInitialCapacity = 16;
     private static int defaultCompactLevel = 5;
+    //number of all words in the corpus used to generate the frequency dictionary
+    //this is used to calculate the word occurrence probability p from word counts c : p=c/N
+    //N equals the sum of all counts c in the dictionary only if the dictionary is complete, but not if the dictionary is truncated or filtered
+    private static long N = 1024908267229L;  // TODO make dynamic man.
+    private OriginalWordsCache originalWordsCache;
+    private Dictionary dictionary;
+    private DeletesKeywords deletesKeywords;
     private int initialCapacity;
     private int maxDictionaryEditDistance;
     private int prefixLength; //prefix length  5..7
@@ -37,7 +35,7 @@ public class SymSpell {
     private int compactMask;
     private EditDistance.DistanceAlgorithm distanceAlgorithm = EditDistance.DistanceAlgorithm.Damerau;
     private int maxLength;
-//    private Map<Integer, String[]> deletes;
+    //    private Map<Integer, String[]> deletes;
     // Dictionary of unique correct spelling words, and the frequency count for each word.
 //    private Map<String, Double> words;
     // Dictionary of unique words that are below the count threshold for being considered correct spellings.
@@ -198,8 +196,8 @@ public class SymSpell {
     public boolean loadDictionary() {
         SuggestionStage staging = new SuggestionStage(16384);
 
-        for(String key : dictionary.keySet()){
-            createDictionaryEntry(key, dictionary.get(key),staging);
+        for (String key : dictionary.keySet()) {
+            createDictionaryEntry(key, dictionary.get(key), staging);
         }
 
 //        if (this.deletes == null) this.deletes = new HashMap<>(staging.deleteCount());
@@ -280,7 +278,7 @@ public class SymSpell {
         double suggestionCount;
 
         // quick look for exact match
-        if (originalWordsCache.get(input) !=null) {
+        if (originalWordsCache.get(input) != null) {
             suggestionCount = originalWordsCache.get(input);
             suggestions.add(new SuggestItem(input, 0, suggestionCount));
             // early exit - return exact match, unless caller wants all matches
@@ -622,21 +620,6 @@ public class SymSpell {
     //While each String of length n can be segmentend in 2^n−1 possible compositions https://en.wikipedia.org/wiki/Composition_(combinatorics)
     //SymSpell.WordSegmentation has a linear runtime O(n) to find the optimum composition
 
-    //number of all words in the corpus used to generate the frequency dictionary
-    //this is used to calculate the word occurrence probability p from word counts c : p=c/N
-    //N equals the sum of all counts c in the dictionary only if the dictionary is complete, but not if the dictionary is truncated or filtered
-    private static long N = 1024908267229L;  // TODO make dynamic man.
-
-    public class SegmentedSuggestion {
-        public String segmentedString = "";
-        public String correctedString = "";
-        int distanceSum = 0;
-        double probabilityLogSum = 0.0;
-
-        SegmentedSuggestion() {
-        }
-    }
-
     /// <summary>Find suggested spellings for a multi-word input String (supports word splitting/merging).</summary>
     /// <param name="input">The String being spell checked.</param>
     /// <returns>The word segmented String,
@@ -751,6 +734,22 @@ public class SymSpell {
         }
         return compositions[circularIndex];
 
+    }
+
+    public enum Verbosity {
+        Top,
+        Closest,
+        All
+    }
+
+    public class SegmentedSuggestion {
+        public String segmentedString = "";
+        public String correctedString = "";
+        int distanceSum = 0;
+        double probabilityLogSum = 0.0;
+
+        SegmentedSuggestion() {
+        }
     }
 }
 

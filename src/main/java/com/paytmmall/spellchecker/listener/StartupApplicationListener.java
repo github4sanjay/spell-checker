@@ -10,7 +10,7 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 
 @Component
-public class StartupApplicationListener{
+public class StartupApplicationListener {
 
     @Autowired
     private SymSpellService symSpellService;
@@ -23,7 +23,7 @@ public class StartupApplicationListener{
 
     @PostConstruct
     public void onApplicationEvent() {
-    // order is important
+        // order is important
         try {
             combinedNormaliser.normalise();
         } catch (IOException e) {

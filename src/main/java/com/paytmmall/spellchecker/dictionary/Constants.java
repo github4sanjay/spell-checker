@@ -54,9 +54,9 @@ public class Constants {
     );
 
     public static final List<String> WHITELISTED_TOKENS = Arrays.asList(
-            "!","@","#","$","%","^","&","*","(",")","_","+","<",">",".","?",":","{","}",".","/",";","'",
-            "\'","[","]","`","~","\"", "'", "\"","-",",","|","1","2","3","4","5","6","7","8","9","0",
-            "gm","cm","ml"
+            "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "<", ">", ".", "?", ":", "{", "}", ".", "/", ";", "'",
+            "\'", "[", "]", "`", "~", "\"", "'", "\"", "-", ",", "|", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+            "gm", "cm", "ml"
     );
 
     public static final double LOW_ENGLISH = 1.0;
@@ -77,4 +77,7 @@ public class Constants {
 
     public static final double CATALOG_TOKENS_RANGE_MIN = 501.0;
     public static final double CATALOG_TOKENS_RANGE_MAX = 1500.0;
+
+    public static final double CLICKS_WEIGHTAGE = .8;
+    public static final double IMPRESSIONS_WEIGHTAGE = .2;
 }

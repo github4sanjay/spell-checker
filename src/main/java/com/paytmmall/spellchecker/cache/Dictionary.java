@@ -9,9 +9,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 
-
 @Service
-public class Dictionary  implements CacheApi<String, Double> {
+public class Dictionary implements CacheApi<String, Double> {
 
     private static final Cache<String, Double> cache = Caffeine.newBuilder()
             .build();
@@ -51,7 +50,7 @@ public class Dictionary  implements CacheApi<String, Double> {
     }
 
     @Override
-    public Set<String> keySet(){
+    public Set<String> keySet() {
         ConcurrentMap<String, Double> stringGenericCacheDTOConcurrentMap =
                 cache.asMap();
         return stringGenericCacheDTOConcurrentMap.keySet();

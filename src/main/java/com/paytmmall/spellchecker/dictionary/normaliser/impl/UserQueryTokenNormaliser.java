@@ -3,12 +3,16 @@ package com.paytmmall.spellchecker.dictionary.normaliser.impl;
 import com.paytmmall.spellchecker.cache.UserQueryTokenCache;
 import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
+import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 @Service
 public class UserQueryTokenNormaliser implements Normaliser {
@@ -24,67 +28,52 @@ public class UserQueryTokenNormaliser implements Normaliser {
 
     @Override
     public void normalise() throws IOException {
-        File file = ResourceUtil.getFile(inputFileLocation+"/"+inputFileName);
+        File file = ResourceUtil.getFile(inputFileLocation + "/" + inputFileName);
         BufferedReader br = new BufferedReader(new FileReader(file));
 
-        String st ="";
+        String st = "";
         double minimum = Double.MAX_VALUE;
         double maximum = Double.MIN_VALUE;
 
-        while ((st = br.readLine()) != null){
-            String [] temp_row = st.split(",");
+        while ((st = br.readLine()) != null) {
+            String[] temp_row = st.split(","); // split every row into token, impression, click
             int len = temp_row.length;
-            if(len !=3)
+            if (len != 3) // if row is not well formatted than ignore it
                 continue;
 
             String name = "";
             double priority = 0.0;
-            String[] queries = temp_row[len-3].split(" ");
+            String[] queries = temp_row[len - 3].split(" ");
 
             int query_len = queries.length;
 
             double clicks, impressions;
-            try{
-                clicks = Double.parseDouble(temp_row[len -2]);
-                impressions = Double.parseDouble(temp_row[len -1]);
-
-            }
-            catch (Exception e){
+            try {
+                clicks = Double.parseDouble(temp_row[len - 2]);
+                impressions = Double.parseDouble(temp_row[len - 1]);
+            } catch (Exception e) {
                 continue;
             }
 
             for (int j = 0; j < query_len; j++) {
-                priority = clicks*.8 + impressions*.2;
+                priority = clicks * Constants.CLICKS_WEIGHTAGE + impressions * Constants.IMPRESSIONS_WEIGHTAGE;
 
-                if (priority > maximum)
-                    maximum = priority;
+                maximum = (priority > maximum) ? priority : maximum;
+                minimum = (priority < minimum) ? priority : minimum;
 
-                if (priority < minimum)
-                    minimum = priority;
-
-                boolean skip = false;
                 name = queries[j];
                 name = name.toLowerCase();
                 name = name.trim();
-                if(Constants.STOP_WORDS.contains(name))continue;
 
-
-                for(int k=0 ; k < Constants.WHITELISTED_TOKENS.size();k++){
-                    if(name.contains(Constants.WHITELISTED_TOKENS.get(k))){
-                        skip= true;
-                        break;
-                    }
-                }
-
-                if(skip) continue;
+                if (FilterKeywordsUtil.isStopWord(name) || FilterKeywordsUtil.isWHiteListedToken(name)) continue;
 
                 double temp_value = 0.0;
 
-                if(userQueryTokenCache.get(name)!=null){
+                if (userQueryTokenCache.get(name) != null) {
                     temp_value = userQueryTokenCache.get(name);
                 }
 
-                if(temp_value > priority) priority = temp_value;
+                if (temp_value > priority) priority = temp_value;
 
                 userQueryTokenCache.put(name, priority);
             }
@@ -94,13 +83,17 @@ public class UserQueryTokenNormaliser implements Normaliser {
         System.out.println(minimum);
         System.out.println(maximum);
 
-        for(String key : userQueryTokenCache.keySet()){
-            double fetchedValue = userQueryTokenCache.get(key);
-            double value = (Constants.USER_QUERY_RANGE_MAX-Constants.USER_QUERY_RANGE_MIN) *((fetchedValue-minimum)/(maximum- minimum))+Constants.USER_QUERY_RANGE_MIN;
+        normaliseUserQueryTokensUtil(maximum, minimum);
 
-            userQueryTokenCache.put(key,value);
-        }
         System.out.println("user query tokens file write complete");
+    }
+
+    private void normaliseUserQueryTokensUtil(double maximum, double minimum) {
+        for (String key : userQueryTokenCache.keySet()) {
+            double fetchedValue = userQueryTokenCache.get(key);
+            double value = (Constants.CATALOG_TOKENS_RANGE_MAX - Constants.CATALOG_TOKENS_RANGE_MIN) * ((fetchedValue - minimum) / (maximum - minimum)) + Constants.CATALOG_TOKENS_RANGE_MIN;
+            userQueryTokenCache.put(key, value);
+        }
     }
 }
 

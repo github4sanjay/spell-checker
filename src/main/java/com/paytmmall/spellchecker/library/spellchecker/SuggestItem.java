@@ -2,8 +2,7 @@ package com.paytmmall.spellchecker.library.spellchecker;
 
 import java.util.Comparator;
 
-public class SuggestItem implements Comparator<SuggestItem>, Comparable<SuggestItem>
-{
+public class SuggestItem implements Comparator<SuggestItem>, Comparable<SuggestItem> {
     /// <summary>The suggested correctly spelled word.</summary>
     public String term;
     /// <summary>Edit distance between searched for word and suggestion.</summary>
@@ -32,14 +31,12 @@ public class SuggestItem implements Comparator<SuggestItem>, Comparable<SuggestI
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return term.hashCode();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "{" + term + ", " + distance + ", " + count + "}";
     }
 
@@ -50,7 +47,7 @@ public class SuggestItem implements Comparator<SuggestItem>, Comparable<SuggestI
         return Integer.compare(this.distance, other.distance);
     }
 
-    public SuggestItem clone(){
+    public SuggestItem clone() {
         return new SuggestItem(this.term, this.distance, this.count);
     }
 }

@@ -24,7 +24,7 @@ public class CustomExceptions {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public static class FileReadException  extends RuntimeException {
+    public static class FileReadException extends RuntimeException {
 
         public FileReadException(String exception) {
             super(exception);

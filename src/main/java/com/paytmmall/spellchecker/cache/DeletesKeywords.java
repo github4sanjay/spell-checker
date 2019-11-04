@@ -2,7 +2,6 @@ package com.paytmmall.spellchecker.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -10,15 +9,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 
-
 @Service
-public class DeletesKeywords  implements CacheApi<Integer, String []> {
+public class DeletesKeywords implements CacheApi<Integer, String[]> {
 
-    private static final Cache<Integer, String []> cache = Caffeine.newBuilder()
+    private static final Cache<Integer, String[]> cache = Caffeine.newBuilder()
             .build();
 
     @Override
-    public void put(Integer s, String [] v) {
+    public void put(Integer s, String[] v) {
         cache.put(s, v);
     }
 
@@ -42,18 +40,18 @@ public class DeletesKeywords  implements CacheApi<Integer, String []> {
     }
 
     @Override
-    public void putAll(Map<Integer, String []> map) {
+    public void putAll(Map<Integer, String[]> map) {
         cache.putAll(map);
     }
 
     @Override
-    public ConcurrentMap<Integer, String []> getAll() {
+    public ConcurrentMap<Integer, String[]> getAll() {
         return cache.asMap();
     }
 
     @Override
-    public Set<Integer> keySet(){
-        ConcurrentMap<Integer, String []> stringGenericCacheDTOConcurrentMap =
+    public Set<Integer> keySet() {
+        ConcurrentMap<Integer, String[]> stringGenericCacheDTOConcurrentMap =
                 cache.asMap();
         return stringGenericCacheDTOConcurrentMap.keySet();
     }
