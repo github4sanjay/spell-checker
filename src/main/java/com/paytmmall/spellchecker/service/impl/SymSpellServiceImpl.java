@@ -33,10 +33,12 @@ public class SymSpellServiceImpl implements SymSpellService {
         if(!symSpell.loadDictionary(path, termIndex, countIndex))throw new FileNotFoundException("File not found");
     }
 
+    @Override
     public List<SuggestItem> lookup(String input){
         return symSpell.lookup(input, suggestionVerbosity, maxEditDistanceLookup);
     }
 
+    @Override
     public SuggestItem lookupCompound(String input){
         return symSpell.lookupCompound(input, maxEditDistanceLookup).get(0);
     }
