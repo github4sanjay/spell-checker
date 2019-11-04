@@ -1,5 +1,6 @@
 package com.paytmmall.spellchecker.service.impl;
 
+import com.paytmmall.spellchecker.cache.Dictionary;
 import com.paytmmall.spellchecker.cache.OriginalWordsCache;
 import com.paytmmall.spellchecker.library.spellchecker.SuggestItem;
 import com.paytmmall.spellchecker.library.spellchecker.SymSpell;
@@ -27,16 +28,18 @@ public class SymSpellServiceImpl implements SymSpellService {
     @Autowired
     private OriginalWordsCache originalWordsCache;
 
+    @Autowired
+    private Dictionary dictionary;
     @Override
     public void onStartup() throws IOException {
         int maxEditDistanceLookup = 3;
-        symSpell = new SymSpell(-1, maxEditDistanceLookup, -1, 1, originalWordsCache);//, (byte)18);
+        symSpell = new SymSpell(-1, maxEditDistanceLookup, -1, 1, originalWordsCache, dictionary);//, (byte)18);
         
         this.maxEditDistanceLookup = maxEditDistanceLookup;
         int termIndex = 0;
         int countIndex = 1;
         String path = dictionaryFileLocation+"/"+dictionaryFileName;
-        if(!symSpell.loadDictionary(path, termIndex, countIndex))throw new FileNotFoundException("File not found");
+        symSpell.loadDictionary();
     }
 
     @Override

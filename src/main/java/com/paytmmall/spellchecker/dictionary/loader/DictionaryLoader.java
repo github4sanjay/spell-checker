@@ -1,6 +1,7 @@
 package com.paytmmall.spellchecker.dictionary.loader;
 
 import com.paytmmall.spellchecker.cache.CatalogTokenCache;
+import com.paytmmall.spellchecker.cache.Dictionary;
 import com.paytmmall.spellchecker.cache.EnglishDictionaryCache;
 import com.paytmmall.spellchecker.cache.UserQueryTokenCache;
 import com.paytmmall.spellchecker.dictionary.Constants;
@@ -48,6 +49,9 @@ public class DictionaryLoader {
 
     @Autowired
     private UserQueryTokenCache userQueryTokenCache;
+
+    @Autowired
+    Dictionary dictionary;
 
     public void onStartup() throws IOException {
 
@@ -103,14 +107,17 @@ public class DictionaryLoader {
         for(String key : userQueryTokenCache.keySet()){
             fw.write(key+" "+userQueryTokenCache.get(key));
             fw.write("\n");
+            dictionary.put(key,userQueryTokenCache.get(key));
         }
         for(String key : catalogTokenCache.keySet()){
             fw.write(key+" "+catalogTokenCache.get(key));
             fw.write("\n");
+            dictionary.put(key,catalogTokenCache.get(key));
         }
         for(String key : englishDictionaryCache.keySet()){
             fw.write(key+" "+englishDictionaryCache.get(key));
             fw.write("\n");
+            dictionary.put(key,englishDictionaryCache.get(key));
         }
         fw.close();
         System.out.println("dictionary file write complete");

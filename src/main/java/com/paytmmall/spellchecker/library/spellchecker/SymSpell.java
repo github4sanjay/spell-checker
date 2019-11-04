@@ -1,5 +1,6 @@
 package com.paytmmall.spellchecker.library.spellchecker;
 
+import com.paytmmall.spellchecker.cache.Dictionary;
 import com.paytmmall.spellchecker.cache.OriginalWordsCache;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import java.io.*;
@@ -14,6 +15,7 @@ import java.util.regex.Pattern;
 public class SymSpell {
 
     private OriginalWordsCache originalWordsCache;
+    private Dictionary dictionary;
 
     public enum Verbosity {
         Top,
@@ -50,7 +52,7 @@ public class SymSpell {
     /// <param name="countThreshold">The minimum frequency count for dictionary words to be considered correct spellings.</param>
     /// <param name="compactLevel">Degree of favoring lower memory use over speed (0=fastest,most memory, 16=slowest,least memory).</param>
 
-    public SymSpell(int initialCapacity, int maxDictionaryEditDistance, int prefixLength, int countThreshold,   OriginalWordsCache originalWordsCache)//,
+    public SymSpell(int initialCapacity, int maxDictionaryEditDistance, int prefixLength, int countThreshold, OriginalWordsCache originalWordsCache, Dictionary dictionary)
     //byte compactLevel)
     {
         if (initialCapacity < 0) initialCapacity = defaultInitialCapacity;
@@ -67,6 +69,7 @@ public class SymSpell {
 //        if (compactLevel > 16) compactLevel = 16;
         this.compactMask = (0xffffffff >> (3 + defaultCompactLevel)) << 2;
         this.originalWordsCache = originalWordsCache;
+        this.dictionary = dictionary;
     }
 
     /// <summary>Create/Update an entry in the dictionary.</summary>
@@ -147,28 +150,29 @@ public class SymSpell {
         return true;
     }
 
-    /// <summary>Load multiple dictionary entries from a file of word/frequency count pairs</summary>
-    /// <remarks>Merges with any dictionary data already loaded.</remarks>
-    /// <param name="corpus">The path+filename of the file.</param>
-    /// <param name="termIndex">The column position of the word.</param>
-    /// <param name="countIndex">The column position of the frequency count.</param>
-    /// <returns>True if file loaded, or false if file not found.</returns>
-    public boolean loadDictionary(String corpus, int termIndex, int countIndex) throws IOException {
-        File file = ResourceUtil.getFile(corpus);
-        //File file = new File(corpus);
-        if (!file.exists()) return false;
-
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(file));
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-        if (br == null) {
-            return false;
-        }
-        return loadDictionary(br, termIndex, countIndex);
-    }
+//    /// <summary>Load multiple dictionary entries from a file of word/frequency count pairs</summary>
+//    /// <remarks>Merges with any dictionary data already loaded.</remarks>
+//    /// <param name="corpus">The path+filename of the file.</param>
+//    /// <param name="termIndex">The column position of the word.</param>
+//    /// <param name="countIndex">The column position of the frequency count.</param>
+//    /// <returns>True if file loaded, or false if file not found.</returns>
+//    //delete
+//    public boolean loadDictionary(String corpus, int termIndex, int countIndex) throws IOException {
+//        File file = ResourceUtil.getFile(corpus);
+//        //File file = new File(corpus);
+//        if (!file.exists()) return false;
+//
+//        BufferedReader br = null;
+//        try {
+//            br = new BufferedReader(new FileReader(file));
+//        } catch (IOException ex) {
+//            System.out.println(ex.getMessage());
+//        }
+//        if (br == null) {
+//            return false;
+//        }
+//        return loadDictionary();
+//    }
 
     /// <summary>Load multiple dictionary entries from an input stream of word/frequency count pairs</summary>
     /// <remarks>Merges with any dictionary data already loaded.</remarks>
@@ -180,7 +184,7 @@ public class SymSpell {
     public boolean loadDictionary(InputStream corpus, int termIndex, int countIndex) {
         if (corpus == null) return false;
         BufferedReader br = new BufferedReader(new InputStreamReader(corpus, StandardCharsets.UTF_8));
-        return loadDictionary(br, termIndex, countIndex);
+        return loadDictionary();
     }
 
     /// <summary>Load multiple dictionary entries from an buffered reader of word/frequency count pairs</summary>
@@ -189,28 +193,14 @@ public class SymSpell {
     /// <param name="termIndex">The column position of the word.</param>
     /// <param name="countIndex">The column position of the frequency count.</param>
     /// <returns>True if file loaded, or false if file not found.</returns>
-    public boolean loadDictionary(BufferedReader br, int termIndex, int countIndex) {
-        if (br == null) return false;
-
+    // modify
+    public boolean loadDictionary() {
         SuggestionStage staging = new SuggestionStage(16384);
-        try {
-            for (String line; (line = br.readLine()) != null; ) {
-                String[] lineParts = line.split("\\s");
-                if (lineParts.length >= 2) {
-                    String key = lineParts[termIndex];
-                    double count;
-                    try {
-                        count = Double.parseDouble(lineParts[countIndex]);
-                        //count = Long.parseUnsignedLong(lineParts[countIndex]);
-                        createDictionaryEntry(key, count, staging);
-                    } catch (NumberFormatException ex) {
-                        System.out.println(ex.getMessage());
-                    }
-                }
-            }
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+
+        for(String key : dictionary.keySet()){
+            createDictionaryEntry(key, dictionary.get(key),staging);
         }
+
         if (this.deletes == null) this.deletes = new HashMap<>(staging.deleteCount());
         commitStaged(staging);
         return true;
