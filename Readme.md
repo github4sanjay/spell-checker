@@ -1,7 +1,8 @@
 # Spell Checker
 
 ## Overview
-##### Architecture and rest-apis
+##### Architecture
+![Design Flow of Spell Checker](./architecture.png)
 ##### RestApis Doc (Swagger UI) - http://localhost:8090/swagger-ui.html
 
 
