@@ -6,6 +6,8 @@ import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.apache.commons.lang3.Range;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import java.io.*;
 
 @Service
 public class EnglishDictionaryNormaliser implements Normaliser {
+    private static final Logger logger = LoggerFactory.getLogger(EnglishDictionaryNormaliser.class);
 
     @Value("${input.file.location}")
     private String inputFileLocation;
@@ -43,7 +46,10 @@ public class EnglishDictionaryNormaliser implements Normaliser {
             String[] temp_row = st.split(" "); // row format assuming keyword count
             int len = temp_row.length;
 
-            if (len < 2) continue;
+            if (len < 2){
+                logger.error("invalid row format for English Dictionary file ", st);
+                continue;
+            }
 
             String key = temp_row[len - 2];
             key = key.trim();
@@ -54,7 +60,7 @@ public class EnglishDictionaryNormaliser implements Normaliser {
             try {
                 count = Double.parseDouble(temp_row[len - 1]);
             } catch (Exception e) {
-                System.out.println("error occurred in english dictionary while file read " + temp_row[len - 1]);
+                logger.error("invalid row values for English Dictionary file ", e);
                 continue;
             }
             minimum = Math.min(count, minimum);
@@ -63,8 +69,9 @@ public class EnglishDictionaryNormaliser implements Normaliser {
             englishDictionaryCache.put(key, count);
         }
 
-        System.out.println(maximum);
-        System.out.println(minimum);
+        logger.info("English Dictionary file has minimum value of {}",minimum);
+        logger.info("English Dictionary file has maximum value of {}",maximum);
+
         return Range.between(minimum, maximum);
     }
 }

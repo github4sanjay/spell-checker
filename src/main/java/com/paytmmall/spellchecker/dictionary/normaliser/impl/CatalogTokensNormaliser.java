@@ -6,6 +6,8 @@ import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.apache.commons.lang3.Range;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,8 @@ import java.io.IOException;
 
 @Service
 public class CatalogTokensNormaliser implements Normaliser {
+
+    private static final Logger logger = LoggerFactory.getLogger(CatalogTokensNormaliser.class);
 
     @Value("${input.file.location}")
     private String inputFileLocation;
@@ -47,6 +51,7 @@ public class CatalogTokensNormaliser implements Normaliser {
             String[] temp_row = st.split("=>");
             int len = temp_row.length;
             if (len < 2) {
+                logger.error("invalid row format for Catalog Tokens file ", st);
                 continue;
             }
             String key = temp_row[len - 2];
@@ -69,8 +74,8 @@ public class CatalogTokensNormaliser implements Normaliser {
             catalogTokenCache.put(key, count);
         }
 
-        System.out.println(minimum);
-        System.out.println(maximum);
+        logger.info("Catalog Tokens file has minimum value of {}",minimum);
+        logger.info("Catalog Tokens file has maximum value of {}",minimum);
 
         return Range.between(minimum, maximum);
     }

@@ -7,6 +7,8 @@ import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.apache.commons.lang3.Range;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.io.IOException;
 
 @Service
 public class UserQueryTokenNormaliser implements Normaliser {
+    private static final Logger logger = LoggerFactory.getLogger(UserQueryTokenNormaliser.class);
 
     @Value("${input.file.location}")
     private String inputFileLocation;
@@ -47,8 +50,10 @@ public class UserQueryTokenNormaliser implements Normaliser {
         while ((st = br.readLine()) != null) {
             String[] temp_row = st.split(","); // split every row into token, impression, click
             int len = temp_row.length;
-            if (len != 3) // if row is not well formatted than ignore it
+            if (len != 3){ // if row is not well formatted than ignore it
+                logger.error("invalid row format for userQueryToken file ", st);
                 continue;
+            }
 
             String name = "";
             double priority = 0.0;
@@ -59,6 +64,7 @@ public class UserQueryTokenNormaliser implements Normaliser {
                 clicks = Double.parseDouble(temp_row[len - 2]);
                 impressions = Double.parseDouble(temp_row[len - 1]);
             } catch (Exception e) {
+                logger.error("invalid row values for userQueryToken file ", e);
                 continue;
             }
 
@@ -87,8 +93,8 @@ public class UserQueryTokenNormaliser implements Normaliser {
 
         }
 
-        System.out.println(minimum);
-        System.out.println(maximum);
+        logger.info("userQueryTokens file has minimum value of {}",minimum);
+        logger.info("userQueryTokens file has maximum value of {}",maximum);
 
         return Range.between(minimum, maximum);
 
