@@ -35,7 +35,7 @@ public class EnglishDictionaryNormaliser implements Normaliser {
         Range<Double> range = this.getRange(inputFileLocation + "/" + inputFileName,
                 this.englishDictionaryCache);
         normaliserUtil(range, this.englishDictionaryCache);
-        System.out.println("English dictionary tokens file write complete");
+        logger.info("English dictionary tokens file write complete");
     }
 
     private Range<Double> getRange(String filePath, CacheApi<String, Double> cacheApi) throws IOException {
@@ -50,7 +50,7 @@ public class EnglishDictionaryNormaliser implements Normaliser {
             int len = temp_row.length;
 
             if (len < 2) {
-                logger.error("invalid row format for English Dictionary file ", st);
+                logger.warn("invalid row format for English Dictionary file ", st);
                 continue;
             }
 

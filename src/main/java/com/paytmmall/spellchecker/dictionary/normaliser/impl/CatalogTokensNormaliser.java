@@ -36,7 +36,7 @@ public class CatalogTokensNormaliser implements Normaliser {
         Range<Double> range = this.getRange(inputFileLocation + "/" + inputFileName,
                 this.catalogTokenCache);
         this.normaliserUtil(range, this.catalogTokenCache);
-        System.out.println("Catalog tokens file write complete");
+        logger.info("Catalog tokens file write complete");
     }
 
     private Range<Double> getRange(String filePath, CacheApi<String, Double> cacheApi) throws IOException {
@@ -51,7 +51,7 @@ public class CatalogTokensNormaliser implements Normaliser {
             String[] temp_row = st.split("=>");
             int len = temp_row.length;
             if (len < 2) {
-                logger.error("invalid row format for Catalog Tokens file ", st);
+                logger.warn("invalid row format for Catalog Tokens file ", st);
                 continue;
             }
             String key = temp_row[len - 2];

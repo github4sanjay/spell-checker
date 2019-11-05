@@ -36,7 +36,7 @@ public class UserQueryTokenNormaliser implements Normaliser {
         Range<Double> range = this.getRange(inputFileLocation + "/" + inputFileName,
                 this.userQueryTokenCache);
         this.normaliserUtil(range, this.userQueryTokenCache);
-        System.out.println("User tokens file write complete");
+       logger.info("User tokens file write complete");
     }
 
     private Range<Double> getRange(String filePath, CacheApi<String, Double> cacheApi) throws IOException {
@@ -51,7 +51,7 @@ public class UserQueryTokenNormaliser implements Normaliser {
             String[] temp_row = st.split(","); // split every row into token, impression, click
             int len = temp_row.length;
             if (len != 3) { // if row is not well formatted than ignore it
-                logger.error("invalid row format for userQueryToken file ", st);
+                logger.warn("invalid row format for userQueryToken file ", st);
                 continue;
             }
 
