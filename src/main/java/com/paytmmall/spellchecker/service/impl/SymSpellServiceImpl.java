@@ -19,11 +19,8 @@ public class SymSpellServiceImpl implements SymSpellService {
     private int maxEditDistanceLookup; //max edit distance per lookup (maxEditDistanceLookup<=maxEditDistanceDictionary)
     private SymSpell symSpell;
 
-    @Value("${dictionary.file.location}")
-    private String dictionaryFileLocation;
-
-    @Value("${dictionary.file.name}")
-    private String dictionaryFileName;
+    @Value("${dictionary.file}")
+    private String dictionaryFile;
 
     @Autowired
     private OriginalWordsCache originalWordsCache;
@@ -40,9 +37,9 @@ public class SymSpellServiceImpl implements SymSpellService {
         symSpell = new SymSpell(-1, maxEditDistanceLookup, -1, 1, originalWordsCache, dictionary, orderedSubsets);//, (byte)18);
 
         this.maxEditDistanceLookup = maxEditDistanceLookup;
-        int termIndex = 0;
-        int countIndex = 1;
-        String path = dictionaryFileLocation + "/" + dictionaryFileName;
+//        int termIndex = 0;
+//        int countIndex = 1;
+        String path = dictionaryFile;
         symSpell.loadDictionary();
     }
 

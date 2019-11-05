@@ -3,6 +3,7 @@ package com.paytmmall.spellchecker.library.spellchecker;
 import com.paytmmall.spellchecker.cache.Dictionary;
 import com.paytmmall.spellchecker.cache.OrderedSubsets;
 import com.paytmmall.spellchecker.cache.OriginalWordsCache;
+import com.paytmmall.spellchecker.exception.CustomExceptions;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 
 import java.io.*;
@@ -263,7 +264,7 @@ public class SymSpell {
         // maxEditDistance used in lookup can't be bigger than the maxDictionaryEditDistance
         // used to construct the underlying dictionary structure.
         if (maxEditDistance > maxDictionaryEditDistance)
-            throw new IllegalArgumentException("Dist to big: " + maxEditDistance);
+            throw new CustomExceptions.InvalidRequestException("Edit Distance should not be greater than " + maxEditDistance);
 
         List<SuggestItem> suggestions = new ArrayList<>();
         int inputLen = input.length();
@@ -419,7 +420,7 @@ public class SymSpell {
     public List<SuggestItem> lookupCompound(String input, int maxEditDistance) {
         //parse input String into single terms
         if (maxEditDistance > maxDictionaryEditDistance)
-            throw new IllegalArgumentException("Dist to big " + maxEditDistance);
+            throw new CustomExceptions.InvalidRequestException("Edit Distance should not be greater than " + maxEditDistance);
         String[] termList1 = parseWords(input);
 
         List<SuggestItem> suggestions; //suggestions for a single term

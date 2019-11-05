@@ -6,10 +6,11 @@ import com.paytmmall.spellchecker.cache.EnglishDictionaryCache;
 import com.paytmmall.spellchecker.cache.UserQueryTokenCache;
 import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.util.ResourceUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,24 +20,23 @@ import java.util.Map;
 @Service
 public class DictionaryLoader {
 
+    private static final Logger logger = LoggerFactory.getLogger(DictionaryLoader.class);
+
     @Autowired
     Dictionary dictionary;
-    @Value("${dictionary.file.location}")
-    private String dictionaryFileLocation;
+
+    @Value("${dictionary.file}")
+    private String dictionaryFile;
+
     @Value("${threshold.file.location}")
     private String thresholdFileLocation;
-    @Value("${english.normalised.file.name}")
-    private String englishNormalisedFileName;
-    @Value("${user.query.normalised.file.name}")
-    private String userQueryNormalisedFileName;
-    @Value("${catalog.normalised.file.name}")
-    private String catalogQueryNormalisedFileName;
+
     @Value("${english.threshold.file.name}")
     private String englishThresholdFileName;
+
     @Value("${catalog.threshold.file.name}")
     private String catalogThresholdFileName;
-    @Value("${dictionary.file.name}")
-    private String dictionaryFileName;
+
     @Autowired
     private CatalogTokenCache catalogTokenCache;
     @Autowired
@@ -92,7 +92,7 @@ public class DictionaryLoader {
             }
         }
 
-        File file = ResourceUtil.getFile(dictionaryFileLocation + "/" + dictionaryFileName);
+        File file = ResourceUtil.getFile(dictionaryFile);
         FileWriter fw = new FileWriter(file);
         for (String key : userQueryTokenCache.keySet()) {
             fw.write(key + " " + userQueryTokenCache.get(key));
@@ -110,7 +110,7 @@ public class DictionaryLoader {
             dictionary.put(key, englishDictionaryCache.get(key));
         }
         fw.close();
-        System.out.println("dictionary file write complete");
+        logger.info("Dictionary file write complete");
 
         fw = new FileWriter(ResourceUtil.getFile(thresholdFileLocation + "/" + catalogThresholdFileName));
         for (String key : catalogThresholdMap.keySet()) {
@@ -118,15 +118,21 @@ public class DictionaryLoader {
             fw.write("\n");
         }
         fw.close();
-        System.out.println("catalog threshold file write complete");
+        logger.info("Catalog threshold file write complete");
 
         fw = new FileWriter(ResourceUtil.getFile(thresholdFileLocation + "/" + englishThresholdFileName));
         for (String key : englishThresholdMap.keySet()) {
             fw.write(key + " " + englishThresholdMap.get(key));
             fw.write("\n");
         }
+
         fw.close();
-        System.out.println("english threshold file write complete");
+
+        catalogTokenCache.clearAll();
+        englishDictionaryCache.clearAll();
+        userQueryTokenCache.clearAll();
+
+        logger.info("English threshold file write complete");
     }
 }
 

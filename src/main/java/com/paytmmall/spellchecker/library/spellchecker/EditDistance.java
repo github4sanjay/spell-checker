@@ -1,5 +1,7 @@
 package com.paytmmall.spellchecker.library.spellchecker;
 
+import com.paytmmall.spellchecker.exception.CustomExceptions;
+
 public class EditDistance {
     private String baseString;
     private DistanceAlgorithm algorithm;
@@ -32,7 +34,7 @@ public class EditDistance {
             case Damerau:
                 return DamerauLevenshteinDistance(string2, maxDistance);
         }
-        throw new IllegalArgumentException("unknown DistanceAlgorithm");
+        throw new CustomExceptions.InvalidRequestException("unknown DistanceAlgorithm");
     }
 
     // stores one level further back (offset by +1 position)
