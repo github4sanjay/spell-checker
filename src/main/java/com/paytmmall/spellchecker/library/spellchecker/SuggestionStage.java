@@ -1,6 +1,6 @@
 package com.paytmmall.spellchecker.library.spellchecker;
 
-import com.paytmmall.spellchecker.cache.DeletesKeywords;
+import com.paytmmall.spellchecker.cache.OrderedSubsets;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,21 +49,21 @@ public class SuggestionStage {
         nodes.add(new Node(suggestion, next));
     }
 
-    void commitTo(DeletesKeywords deletesKeywords) {
+    void commitTo(OrderedSubsets orderedSubsets) {
         deletes.forEach((key, value) -> {
             int i;
             String[] suggestions;
-            if (deletesKeywords.get(key) != null) {
-                suggestions = deletesKeywords.get(key);
+            if (orderedSubsets.get(key) != null) {
+                suggestions = orderedSubsets.get(key);
                 i = suggestions.length;
                 String[] newSuggestion = Arrays.copyOf(suggestions, i + value.count);
 
-                deletesKeywords.put(key, newSuggestion);
+                orderedSubsets.put(key, newSuggestion);
                 suggestions = newSuggestion;
             } else {
                 i = 0;
                 suggestions = new String[value.count];
-                deletesKeywords.put(key, suggestions);
+                orderedSubsets.put(key, suggestions);
             }
             int next = value.first;
             Node node;

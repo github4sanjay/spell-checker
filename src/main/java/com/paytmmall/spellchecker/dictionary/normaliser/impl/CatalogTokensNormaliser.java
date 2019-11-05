@@ -74,8 +74,8 @@ public class CatalogTokensNormaliser implements Normaliser {
             catalogTokenCache.put(key, count);
         }
 
-        logger.info("Catalog Tokens file has minimum value of {}",minimum);
-        logger.info("Catalog Tokens file has maximum value of {}",minimum);
+        logger.info("Catalog Tokens file has minimum value of {}", minimum);
+        logger.info("Catalog Tokens file has maximum value of {}", minimum);
 
         return Range.between(minimum, maximum);
     }

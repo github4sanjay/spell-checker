@@ -32,7 +32,7 @@ public class CombinedNormaliser implements Normaliser {
             try {
                 catalogTokensNormaliser.normalise();
             } catch (IOException e) {
-                logger.error("Error during Catalog Token file read ",e);
+                logger.error("Error during Catalog Token file read ", e);
                 throw new CustomExceptions.FileReadException(e.getMessage());
             }
         });
@@ -41,7 +41,7 @@ public class CombinedNormaliser implements Normaliser {
             try {
                 englishDictionaryNormaliser.normalise();
             } catch (IOException e) {
-                logger.error("Error during English Dictionary file read ",e);
+                logger.error("Error during English Dictionary file read ", e);
                 throw new CustomExceptions.FileReadException(e.getMessage());
             }
         });
@@ -50,7 +50,7 @@ public class CombinedNormaliser implements Normaliser {
             try {
                 userQueryTokenNormaliser.normalise();
             } catch (IOException e) {
-                logger.error("Error during User Query Token file read ",e);
+                logger.error("Error during User Query Token file read ", e);
                 throw new CustomExceptions.FileReadException(e.getMessage());
             }
         });
@@ -61,7 +61,7 @@ public class CombinedNormaliser implements Normaliser {
         try {
             combinedFuture.get(); // wait for all three to complete
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Error occured during normalisation of token files ",e);
+            logger.error("Error occured during normalisation of token files ", e);
             throw new CustomExceptions.FileReadException(e.getMessage());
         }
     }

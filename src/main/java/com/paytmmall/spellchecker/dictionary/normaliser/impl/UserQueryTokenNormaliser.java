@@ -50,7 +50,7 @@ public class UserQueryTokenNormaliser implements Normaliser {
         while ((st = br.readLine()) != null) {
             String[] temp_row = st.split(","); // split every row into token, impression, click
             int len = temp_row.length;
-            if (len != 3){ // if row is not well formatted than ignore it
+            if (len != 3) { // if row is not well formatted than ignore it
                 logger.error("invalid row format for userQueryToken file ", st);
                 continue;
             }
@@ -93,8 +93,8 @@ public class UserQueryTokenNormaliser implements Normaliser {
 
         }
 
-        logger.info("userQueryTokens file has minimum value of {}",minimum);
-        logger.info("userQueryTokens file has maximum value of {}",maximum);
+        logger.info("userQueryTokens file has minimum value of {}", minimum);
+        logger.info("userQueryTokens file has maximum value of {}", maximum);
 
         return Range.between(minimum, maximum);
 

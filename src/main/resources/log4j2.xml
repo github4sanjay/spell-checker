@@ -10,38 +10,38 @@
                      fileName="logs/applicationInfo.log"
                      filePattern="logs/applicationInfo-%d{yyyy-MM-dd-HH}.log.gz">
             <PatternLayout
-                    pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %logger{36}.%M() - %msg%n" />
+                    pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %logger{36}.%M() - %msg%n"/>
             <Policies>
-                <TimeBasedTriggeringPolicy />
+                <TimeBasedTriggeringPolicy/>
                 <!-- <SizeBasedTriggeringPolicy size="500 MB"/> -->
             </Policies>
-            <ThresholdFilter level="INFO" />
-            <DefaultRolloverStrategy max="50" />
+            <ThresholdFilter level="INFO"/>
+            <DefaultRolloverStrategy max="50"/>
         </RollingFile>
         <RollingFile name="ErrorRollingFile"
                      fileName="logs/applicationError.log"
                      filePattern="logs/applicationError-%d{yyyy-MM-dd-HH}.log.gz">
             <PatternLayout
-                    pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %logger{36}.%M() - %msg%n" />
+                    pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %logger{36}.%M() - %msg%n"/>
             <Policies>
-                <TimeBasedTriggeringPolicy />
+                <TimeBasedTriggeringPolicy/>
                 <!-- <SizeBasedTriggeringPolicy size="500 MB"/> -->
             </Policies>
-            <ThresholdFilter level="ERROR" />
-            <DefaultRolloverStrategy max="50" />
+            <ThresholdFilter level="ERROR"/>
+            <DefaultRolloverStrategy max="50"/>
 
         </RollingFile>
     </Appenders>
     <Loggers>
         <Logger name="com.paytm.search" level="INFO" additivity="false">
-            <AppenderRef ref="RollingFile" level="info" />
-            <AppenderRef ref="ErrorRollingFile" level="error" />
-            <AppenderRef ref="STDOUT" level="info" />
-            <AppenderRef ref="STDOUT" level="error" />
+            <AppenderRef ref="RollingFile" level="info"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+            <AppenderRef ref="STDOUT" level="info"/>
+            <AppenderRef ref="STDOUT" level="error"/>
         </Logger>
         <Root level="WARN">
-            <AppenderRef ref="RollingFile" />
-            <AppenderRef ref="STDOUT" />
+            <AppenderRef ref="RollingFile"/>
+            <AppenderRef ref="STDOUT"/>
         </Root>
     </Loggers>
 </Configuration>

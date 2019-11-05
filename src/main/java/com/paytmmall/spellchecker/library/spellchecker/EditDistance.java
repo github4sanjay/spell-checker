@@ -5,6 +5,7 @@ public class EditDistance {
     private DistanceAlgorithm algorithm;
     private int[] v0;
     private int[] v2;
+
     /// <summary>Create a new EditDistance object.</summary>
     /// <param name="baseString">The base string to which other strings will be compared.</param>
     /// <param name="algorithm">The desired edit distance algorithm.</param>

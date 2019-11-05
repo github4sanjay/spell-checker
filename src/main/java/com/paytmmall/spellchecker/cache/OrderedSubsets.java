@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 
 
 @Service
-public class DeletesKeywords implements CacheApi<Integer, String[]> {
+public class OrderedSubsets implements CacheApi<Integer, String[]> {
 
     private static final Cache<Integer, String[]> cache = Caffeine.newBuilder()
             .build();

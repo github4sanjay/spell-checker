@@ -1,7 +1,7 @@
 package com.paytmmall.spellchecker.service.impl;
 
-import com.paytmmall.spellchecker.cache.DeletesKeywords;
 import com.paytmmall.spellchecker.cache.Dictionary;
+import com.paytmmall.spellchecker.cache.OrderedSubsets;
 import com.paytmmall.spellchecker.cache.OriginalWordsCache;
 import com.paytmmall.spellchecker.library.spellchecker.SuggestItem;
 import com.paytmmall.spellchecker.library.spellchecker.SymSpell;
@@ -32,12 +32,12 @@ public class SymSpellServiceImpl implements SymSpellService {
     private Dictionary dictionary;
 
     @Autowired
-    private DeletesKeywords deletesKeywords;
+    private OrderedSubsets orderedSubsets;
 
     @Override
     public void onStartup() throws IOException {
         int maxEditDistanceLookup = 3;
-        symSpell = new SymSpell(-1, maxEditDistanceLookup, -1, 1, originalWordsCache, dictionary, deletesKeywords);//, (byte)18);
+        symSpell = new SymSpell(-1, maxEditDistanceLookup, -1, 1, originalWordsCache, dictionary, orderedSubsets);//, (byte)18);
 
         this.maxEditDistanceLookup = maxEditDistanceLookup;
         int termIndex = 0;

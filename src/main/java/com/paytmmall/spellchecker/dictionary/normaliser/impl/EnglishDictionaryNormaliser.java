@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 @Service
 public class EnglishDictionaryNormaliser implements Normaliser {
@@ -46,7 +49,7 @@ public class EnglishDictionaryNormaliser implements Normaliser {
             String[] temp_row = st.split(" "); // row format assuming keyword count
             int len = temp_row.length;
 
-            if (len < 2){
+            if (len < 2) {
                 logger.error("invalid row format for English Dictionary file ", st);
                 continue;
             }
@@ -69,8 +72,8 @@ public class EnglishDictionaryNormaliser implements Normaliser {
             englishDictionaryCache.put(key, count);
         }
 
-        logger.info("English Dictionary file has minimum value of {}",minimum);
-        logger.info("English Dictionary file has maximum value of {}",maximum);
+        logger.info("English Dictionary file has minimum value of {}", minimum);
+        logger.info("English Dictionary file has maximum value of {}", maximum);
 
         return Range.between(minimum, maximum);
     }
