@@ -1,10 +1,12 @@
 package com.paytmmall.spellchecker.dictionary.normaliser.impl;
 
+import com.paytmmall.spellchecker.cache.CacheApi;
 import com.paytmmall.spellchecker.cache.UserQueryTokenCache;
 import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
+import org.apache.commons.lang3.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,13 @@ public class UserQueryTokenNormaliser implements Normaliser {
 
     @Override
     public void normalise() throws IOException {
+        Range<Double> range = this.getRange(inputFileLocation + "/" + inputFileName,
+                this.userQueryTokenCache);
+        this.normaliserUtil(range, this.userQueryTokenCache);
+        System.out.println("User tokens file write complete");
+    }
+
+    private Range<Double> getRange(String filePath, CacheApi<String, Double> cacheApi) throws IOException {
         File file = ResourceUtil.getFile(inputFileLocation + "/" + inputFileName);
         BufferedReader br = new BufferedReader(new FileReader(file));
 
@@ -45,8 +54,6 @@ public class UserQueryTokenNormaliser implements Normaliser {
             double priority = 0.0;
             String[] queries = temp_row[len - 3].split(" ");
 
-            int query_len = queries.length;
-
             double clicks, impressions;
             try {
                 clicks = Double.parseDouble(temp_row[len - 2]);
@@ -55,13 +62,13 @@ public class UserQueryTokenNormaliser implements Normaliser {
                 continue;
             }
 
-            for (int j = 0; j < query_len; j++) {
+            for (String query : queries) {
                 priority = clicks * Constants.CLICKS_WEIGHTAGE + impressions * Constants.IMPRESSIONS_WEIGHTAGE;
 
-                maximum = (priority > maximum) ? priority : maximum;
-                minimum = (priority < minimum) ? priority : minimum;
+                maximum = Math.max(priority, maximum);
+                minimum = Math.min(priority, minimum);
 
-                name = queries[j];
+                name = query;
                 name = name.toLowerCase();
                 name = name.trim();
 
@@ -83,17 +90,8 @@ public class UserQueryTokenNormaliser implements Normaliser {
         System.out.println(minimum);
         System.out.println(maximum);
 
-        normaliseUserQueryTokensUtil(maximum, minimum);
+        return Range.between(minimum, maximum);
 
-        System.out.println("user query tokens file write complete");
-    }
-
-    private void normaliseUserQueryTokensUtil(double maximum, double minimum) {
-        for (String key : userQueryTokenCache.keySet()) {
-            double fetchedValue = userQueryTokenCache.get(key);
-            double value = (Constants.CATALOG_TOKENS_RANGE_MAX - Constants.CATALOG_TOKENS_RANGE_MIN) * ((fetchedValue - minimum) / (maximum - minimum)) + Constants.CATALOG_TOKENS_RANGE_MIN;
-            userQueryTokenCache.put(key, value);
-        }
     }
 }
 

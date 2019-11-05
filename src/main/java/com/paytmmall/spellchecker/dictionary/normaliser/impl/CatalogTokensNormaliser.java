@@ -1,10 +1,11 @@
 package com.paytmmall.spellchecker.dictionary.normaliser.impl;
 
+import com.paytmmall.spellchecker.cache.CacheApi;
 import com.paytmmall.spellchecker.cache.CatalogTokenCache;
-import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
+import org.apache.commons.lang3.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,13 @@ public class CatalogTokensNormaliser implements Normaliser {
 
     @Override
     public void normalise() throws IOException {
+        Range<Double> range = this.getRange(inputFileLocation + "/" + inputFileName,
+                this.catalogTokenCache);
+        this.normaliserUtil(range, this.catalogTokenCache);
+        System.out.println("Catalog tokens file write complete");
+    }
+
+    private Range<Double> getRange(String filePath, CacheApi<String, Double> cacheApi) throws IOException {
         File file = ResourceUtil.getFile(inputFileLocation + "/" + inputFileName);
         BufferedReader br = new BufferedReader(new FileReader(file));
         String st = "";
@@ -47,7 +55,7 @@ public class CatalogTokensNormaliser implements Normaliser {
 
             if (FilterKeywordsUtil.isStopWord(key) || FilterKeywordsUtil.isWHiteListedToken(key)) continue;
 
-            Double count = Double.parseDouble(temp_row[len - 1]);
+            double count = Double.parseDouble(temp_row[len - 1]);
 
             double existingValue = 0.0;
             if (catalogTokenCache.get(key) != null) {
@@ -55,8 +63,8 @@ public class CatalogTokensNormaliser implements Normaliser {
                 count += existingValue;
             }
 
-            minimum = (count < minimum) ? count : minimum;
-            maximum = (count > maximum) ? count : maximum;
+            minimum = Math.min(count, minimum);
+            maximum = Math.max(count, maximum);
 
             catalogTokenCache.put(key, count);
         }
@@ -64,17 +72,7 @@ public class CatalogTokensNormaliser implements Normaliser {
         System.out.println(minimum);
         System.out.println(maximum);
 
-        normaliseCategoryTokensUtil(maximum, minimum);
-
-        System.out.println("catalog tokens file write complete");
-    }
-
-    private void normaliseCategoryTokensUtil(double maximum, double minimum) {
-        for (String key : catalogTokenCache.keySet()) {
-            double fetchedValue = catalogTokenCache.get(key);
-            double value = (Constants.CATALOG_TOKENS_RANGE_MAX - Constants.CATALOG_TOKENS_RANGE_MIN) * ((fetchedValue - minimum) / (maximum - minimum)) + Constants.CATALOG_TOKENS_RANGE_MIN;
-            catalogTokenCache.put(key, value);
-        }
+        return Range.between(minimum, maximum);
     }
 }
 

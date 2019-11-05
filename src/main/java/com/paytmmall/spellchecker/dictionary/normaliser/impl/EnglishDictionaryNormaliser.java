@@ -1,10 +1,11 @@
 package com.paytmmall.spellchecker.dictionary.normaliser.impl;
 
+import com.paytmmall.spellchecker.cache.CacheApi;
 import com.paytmmall.spellchecker.cache.EnglishDictionaryCache;
-import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
+import org.apache.commons.lang3.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,13 +25,20 @@ public class EnglishDictionaryNormaliser implements Normaliser {
     private EnglishDictionaryCache englishDictionaryCache;
 
     @Override
-    public void normalise() throws FileNotFoundException, IOException {
+    public void normalise() throws IOException {
+        Range<Double> range = this.getRange(inputFileLocation + "/" + inputFileName,
+                this.englishDictionaryCache);
+        normaliserUtil(range, this.englishDictionaryCache);
+        System.out.println("English dictionary tokens file write complete");
+    }
+
+    private Range<Double> getRange(String filePath, CacheApi<String, Double> cacheApi) throws IOException {
         File file = ResourceUtil.getFile(inputFileLocation + "/" + inputFileName);
         BufferedReader br = new BufferedReader(new FileReader(file));
         String st = "";
         double minimum = Double.MAX_VALUE;
         double maximum = Double.MIN_VALUE;
-        Double count = 0.0;
+        double count = 0.0;
         while ((st = br.readLine()) != null) {
             String[] temp_row = st.split(" "); // row format assuming keyword count
             int len = temp_row.length;
@@ -46,30 +54,18 @@ public class EnglishDictionaryNormaliser implements Normaliser {
             try {
                 count = Double.parseDouble(temp_row[len - 1]);
             } catch (Exception e) {
-                System.out.println("error occured in english dictionary while file read " + temp_row[len - 1]);
+                System.out.println("error occurred in english dictionary while file read " + temp_row[len - 1]);
                 continue;
             }
-            minimum = (count < minimum) ? count : minimum;
-            maximum = (count > maximum) ? count : maximum;
+            minimum = Math.min(count, minimum);
+            maximum = Math.max(count, maximum);
 
             englishDictionaryCache.put(key, count);
         }
 
-
         System.out.println(maximum);
         System.out.println(minimum);
-
-        normaliseEnglishTokensUtil(maximum, minimum);
-        System.out.println("english dictionary tokens file write complete");
-
-    }
-
-    private void normaliseEnglishTokensUtil(double maximum, double minimum) {
-        for (String key : englishDictionaryCache.keySet()) {
-            double fetchedValue = englishDictionaryCache.get(key);
-            double value = (Constants.CATALOG_TOKENS_RANGE_MAX - Constants.CATALOG_TOKENS_RANGE_MIN) * ((fetchedValue - minimum) / (maximum - minimum)) + Constants.CATALOG_TOKENS_RANGE_MIN;
-            englishDictionaryCache.put(key, value);
-        }
+        return Range.between(minimum, maximum);
     }
 }
 
