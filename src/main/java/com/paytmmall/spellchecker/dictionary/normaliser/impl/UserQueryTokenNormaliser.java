@@ -8,6 +8,7 @@ import com.paytmmall.spellchecker.metrics.MetricsAgent;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.apache.commons.lang3.Range;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,8 @@ public class UserQueryTokenNormaliser implements Normaliser {
        logger.info("User tokens file write complete");
     }
 
-    private Range<Double> getRange(String filePath, CacheApi<String, Double> cacheApi) throws IOException {
+
+    private Range<Double> getRange(String filePath, CacheApi<String, Pair<Double,Double>> cacheApi) throws IOException {
         File file = ResourceUtil.getFile(inputFileLocation + "/" + inputFileName);
         BufferedReader br = new BufferedReader(new FileReader(file));
 
@@ -86,10 +88,12 @@ public class UserQueryTokenNormaliser implements Normaliser {
 
                 if (FilterKeywordsUtil.isStopWord(name) || FilterKeywordsUtil.isWHiteListedToken(name)) continue;
 
-                double temp_value = 0.0;
+                double existingOriginalScore = 0.0;
+                double existingNormalisedScore = 0.0;
 
                 if (userQueryTokenCache.get(name) != null) {
-                    temp_value = userQueryTokenCache.get(name);
+                    Pair<Double,Double> scores = userQueryTokenCache.get(name);
+
                 }
 
                 if (temp_value > priority) priority = temp_value;

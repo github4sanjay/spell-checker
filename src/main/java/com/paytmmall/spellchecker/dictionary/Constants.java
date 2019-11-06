@@ -59,24 +59,20 @@ public class Constants {
             "gm", "cm", "ml"
     );
 
-    public static final double LOW_ENGLISH = 1.0;
-    public static final double HIGH_ENGLISH = 500.0;
-
-    public static final double LOW_CATALOG = 501.0;
-    public static final double HIGH_CATALOG = 1500.0;
-
-    public static final double ENGLISH_THRESHOLD = 1.0;
-    public static final double CATALOG_THRESHOLD = 501.0;
-
-
-    public static final double USER_QUERY_RANGE_MIN = 1501.0;
-    public static final double USER_QUERY_RANGE_MAX = 2000.0;
 
     public static final double ENGLISH_DICTIONARY_RANGE_MIN = 1.0;
     public static final double ENGLISH_DICTIONARY_RANGE_MAX = 500.0;
 
-    public static final double CATALOG_TOKENS_RANGE_MIN = 501.0;
-    public static final double CATALOG_TOKENS_RANGE_MAX = 1500.0;
+
+    public static final double CATALOG_TOKENS_RANGE_MIN = 1000.0;
+    public static final double CATALOG_TOKENS_RANGE_MAX = 5000.0;
+
+    public static final double USER_QUERY_RANGE_MIN = 10000.0;
+    public static final double USER_QUERY_RANGE_MAX = 15000.0;
+
+    public static final double ENGLISH_THRESHOLD = 100.0;
+    public static final double CATALOG_THRESHOLD = 100.0;
+    public static final double USER_QUERY_THRESHOLD = 100.0;
 
     public static final double CLICKS_WEIGHTAGE = .8;
     public static final double IMPRESSIONS_WEIGHTAGE = .2;

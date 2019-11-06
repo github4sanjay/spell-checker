@@ -1,4 +1,4 @@
-package com.paytmmall.spellchecker.Constants;
+package com.paytmmall.spellchecker.constants;
 
 public enum APIPoints {
 

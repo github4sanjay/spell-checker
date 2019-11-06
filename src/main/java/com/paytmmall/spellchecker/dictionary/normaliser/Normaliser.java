@@ -3,13 +3,14 @@ package com.paytmmall.spellchecker.dictionary.normaliser;
 import com.paytmmall.spellchecker.cache.CacheApi;
 import com.paytmmall.spellchecker.dictionary.Constants;
 import org.apache.commons.lang3.Range;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 
 public interface Normaliser {
     public void normalise() throws IOException;
 
-    public default void normaliserUtil(Range<Double> range, CacheApi<String, Double> cacheApi) {
+    public default void normaliserUtil(Range<Double> range, CacheApi<String, Pair<Double,Double>> cacheApi) {
         for (String key : cacheApi.keySet()) {
             double fetchedValue = cacheApi.get(key);
             double value = (

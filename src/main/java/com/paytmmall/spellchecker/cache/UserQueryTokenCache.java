@@ -2,6 +2,9 @@ package com.paytmmall.spellchecker.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -9,18 +12,18 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 @Component
-public class UserQueryTokenCache implements CacheApi<String, Double> {
+public class UserQueryTokenCache implements CacheApi<String, Pair<Double, Double>> {
 
-    private static final Cache<String, Double> cache = Caffeine.newBuilder()
+    private static final Cache<String, Pair<Double, Double>> cache = Caffeine.newBuilder()
             .build();
 
     @Override
-    public void put(String s, Double v) {
+    public void put(String s, Pair<Double, Double> v) {
         cache.put(s, v);
     }
 
     @Override
-    public Double get(String s) {
+    public Pair<Double, Double> get(String s) {
         return cache.getIfPresent(s);
     }
 
@@ -39,18 +42,18 @@ public class UserQueryTokenCache implements CacheApi<String, Double> {
     }
 
     @Override
-    public void putAll(Map<String, Double> map) {
+    public void putAll(Map<String, Pair<Double, Double>> map) {
         cache.putAll(map);
     }
 
     @Override
-    public ConcurrentMap<String, Double> getAll() {
+    public ConcurrentMap<String, Pair<Double, Double>> getAll() {
         return cache.asMap();
     }
 
     @Override
     public Set<String> keySet() {
-        ConcurrentMap<String, Double> stringGenericCacheDTOConcurrentMap =
+        ConcurrentMap<String, Pair<Double, Double>> stringGenericCacheDTOConcurrentMap =
                 cache.asMap();
         return stringGenericCacheDTOConcurrentMap.keySet();
     }
