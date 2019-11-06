@@ -2,9 +2,7 @@ package com.paytmmall.spellchecker.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-
-
-import org.apache.commons.lang3.tuple.Pair;
+import org.javatuples.Pair;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

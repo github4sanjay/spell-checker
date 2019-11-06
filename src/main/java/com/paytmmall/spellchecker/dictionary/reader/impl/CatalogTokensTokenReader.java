@@ -1,12 +1,14 @@
-package com.paytmmall.spellchecker.dictionary.normaliser.impl;
+package com.paytmmall.spellchecker.dictionary.reader.impl;
 
 import com.paytmmall.spellchecker.cache.CacheApi;
 import com.paytmmall.spellchecker.cache.CatalogTokenCache;
-import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
+import com.paytmmall.spellchecker.dictionary.Constants;
+import com.paytmmall.spellchecker.dictionary.reader.TokenReader;
 import com.paytmmall.spellchecker.metrics.MetricsAgent;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.apache.commons.lang3.Range;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +21,9 @@ import java.io.FileReader;
 import java.io.IOException;
 
 @Service
-public class CatalogTokensNormaliser implements Normaliser {
+public class CatalogTokensTokenReader implements TokenReader {
 
-    private static final Logger logger = LoggerFactory.getLogger(CatalogTokensNormaliser.class);
+    private static final Logger logger = LoggerFactory.getLogger(CatalogTokensTokenReader.class);
 
     @Value("${input.file.location}")
     private String inputFileLocation;
@@ -36,14 +38,18 @@ public class CatalogTokensNormaliser implements Normaliser {
     MetricsAgent metricsAgent;
 
     @Override
-    public void normalise() throws IOException {
+    public void read() throws IOException {
         Range<Double> range = this.getRange(inputFileLocation + "/" + inputFileName,
                 this.catalogTokenCache);
-        this.normaliserUtil(range, this.catalogTokenCache);
+        this.normaliserUtil(
+                Range.between(Constants.CATALOG_TOKENS_RANGE_MIN, Constants.CATALOG_TOKENS_RANGE_MAX),
+                range,
+                this.catalogTokenCache
+        );
         logger.info("Catalog tokens file write complete");
     }
 
-    private Range<Double> getRange(String filePath, CacheApi<String, Double> cacheApi) throws IOException {
+    private Range<Double> getRange(String filePath, CacheApi<String, Pair<Double, Double>> cacheApi) throws IOException {
         File file = ResourceUtil.getFile(inputFileLocation + "/" + inputFileName);
         BufferedReader br = new BufferedReader(new FileReader(file));
         String st = "";
@@ -68,15 +74,19 @@ public class CatalogTokensNormaliser implements Normaliser {
             double count = Double.parseDouble(temp_row[len - 1]);
 
             double existingValue = 0.0;
-            if (catalogTokenCache.get(key) != null) {
-                existingValue = catalogTokenCache.get(key);
+            Pair<Double, Double> score = catalogTokenCache.get(key);
+            if (score != null) {
+                existingValue = score.getValue0();
                 count += existingValue;
+                score = score.setAt0(count);
+            }else {
+                score = Pair.with(count, null);
             }
 
             minimum = Math.min(count, minimum);
             maximum = Math.max(count, maximum);
 
-            catalogTokenCache.put(key, count);
+            catalogTokenCache.put(key, score);
         }
 
         logger.info("Catalog Tokens file has minimum value of {}", minimum);

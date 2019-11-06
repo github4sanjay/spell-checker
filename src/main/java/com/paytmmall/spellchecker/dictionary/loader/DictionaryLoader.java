@@ -5,7 +5,9 @@ import com.paytmmall.spellchecker.cache.Dictionary;
 import com.paytmmall.spellchecker.cache.EnglishDictionaryCache;
 import com.paytmmall.spellchecker.cache.UserQueryTokenCache;
 import com.paytmmall.spellchecker.dictionary.Constants;
+import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
 import com.paytmmall.spellchecker.util.ResourceUtil;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +41,15 @@ public class DictionaryLoader {
 
     @Autowired
     private CatalogTokenCache catalogTokenCache;
+
     @Autowired
     private EnglishDictionaryCache englishDictionaryCache;
+
     @Autowired
     private UserQueryTokenCache userQueryTokenCache;
+
+    @Autowired
+    private Normaliser normaliser;
 
     public void onStartup() throws IOException {
 
@@ -51,13 +58,11 @@ public class DictionaryLoader {
 
         // if key is found in english than add its value to catalog map and remove the etry from english map
         for (String key : catalogTokenCache.keySet()) {
-            if (englishDictionaryCache.get(key) != null && englishDictionaryCache.get(key) >= 0) { // present in english
-                double existingCount = englishDictionaryCache.get(key);
-                existingCount -= Constants.ENGLISH_DICTIONARY_RANGE_MIN;
-                existingCount += catalogTokenCache.get(key);
-                if (existingCount > Constants.CATALOG_TOKENS_RANGE_MAX)
-                    existingCount = Constants.CATALOG_TOKENS_RANGE_MAX;
-                catalogTokenCache.put(key, existingCount);
+            if (englishDictionaryCache.get(key) != null && englishDictionaryCache.get(key).getValue0() >= 0) { // present in english
+                Pair<Double, Double> score = englishDictionaryCache.get(key);
+                double existingCount = score.getValue0();
+                existingCount += catalogTokenCache.get(key).getValue0();
+                catalogTokenCache.put(key, score.setAt0(existingCount));
                 englishDictionaryCache.clear(key);
             }
         }

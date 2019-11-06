@@ -1,12 +1,14 @@
-package com.paytmmall.spellchecker.dictionary.normaliser.impl;
+package com.paytmmall.spellchecker.dictionary.reader.impl;
 
 import com.paytmmall.spellchecker.cache.CacheApi;
 import com.paytmmall.spellchecker.cache.EnglishDictionaryCache;
-import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
+import com.paytmmall.spellchecker.dictionary.Constants;
+import com.paytmmall.spellchecker.dictionary.reader.TokenReader;
 import com.paytmmall.spellchecker.metrics.MetricsAgent;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.apache.commons.lang3.Range;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +21,8 @@ import java.io.FileReader;
 import java.io.IOException;
 
 @Service
-public class EnglishDictionaryNormaliser implements Normaliser {
-    private static final Logger logger = LoggerFactory.getLogger(EnglishDictionaryNormaliser.class);
+public class EnglishDictionaryTokenReader implements TokenReader {
+    private static final Logger logger = LoggerFactory.getLogger(EnglishDictionaryTokenReader.class);
 
     @Value("${input.file.location}")
     private String inputFileLocation;
@@ -35,14 +37,18 @@ public class EnglishDictionaryNormaliser implements Normaliser {
     private MetricsAgent metricsAgent;
 
     @Override
-    public void normalise() throws IOException {
+    public void read() throws IOException {
         Range<Double> range = this.getRange(inputFileLocation + "/" + inputFileName,
                 this.englishDictionaryCache);
-        normaliserUtil(range, this.englishDictionaryCache);
+        this.normaliserUtil(
+                Range.between(Constants.ENGLISH_DICTIONARY_RANGE_MIN, Constants.ENGLISH_DICTIONARY_RANGE_MAX),
+                range,
+                this.englishDictionaryCache
+        );
         logger.info("English dictionary tokens file write complete");
     }
 
-    private Range<Double> getRange(String filePath, CacheApi<String, Double> cacheApi) throws IOException {
+    private Range<Double> getRange(String filePath, CacheApi<String, Pair<Double, Double>> cacheApi) throws IOException {
         File file = ResourceUtil.getFile(inputFileLocation + "/" + inputFileName);
         BufferedReader br = new BufferedReader(new FileReader(file));
         String st = "";
@@ -60,6 +66,7 @@ public class EnglishDictionaryNormaliser implements Normaliser {
             }
 
             String key = temp_row[len - 2];
+            double existingValue =0.0;
             key = key.trim();
             key = key.toLowerCase();
 
@@ -72,10 +79,17 @@ public class EnglishDictionaryNormaliser implements Normaliser {
                 logger.error("invalid row values for English Dictionary file ", e);
                 continue;
             }
+            Pair<Double, Double> score = englishDictionaryCache.get(key);
+            if (score != null) {
+                existingValue = score.getValue0();
+                count += existingValue;
+                score = score.setAt0(count);
+            }else {
+                score = Pair.with(count, null);
+            }
             minimum = Math.min(count, minimum);
             maximum = Math.max(count, maximum);
-
-            englishDictionaryCache.put(key, count);
+            englishDictionaryCache.put(key, score);
         }
 
         logger.info("English Dictionary file has minimum value of {}", minimum);

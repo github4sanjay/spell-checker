@@ -1,7 +1,7 @@
 package com.paytmmall.spellchecker.listener;
 
 import com.paytmmall.spellchecker.dictionary.loader.DictionaryLoader;
-import com.paytmmall.spellchecker.dictionary.normaliser.impl.CombinedNormaliser;
+import com.paytmmall.spellchecker.dictionary.reader.impl.CombinedTokenReader;
 import com.paytmmall.spellchecker.service.SymSpellService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,13 +19,13 @@ public class StartupApplicationListener {
     private DictionaryLoader dictionaryLoader;
 
     @Autowired
-    private CombinedNormaliser combinedNormaliser;
+    private CombinedTokenReader combinedNormaliser;
 
     @PostConstruct
     public void onApplicationEvent() {
         // order is important
         try {
-            combinedNormaliser.normalise();
+            combinedNormaliser.read();
         } catch (IOException e) {
             e.printStackTrace();
         }

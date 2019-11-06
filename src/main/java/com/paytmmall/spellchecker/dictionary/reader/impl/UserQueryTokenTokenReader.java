@@ -1,14 +1,14 @@
-package com.paytmmall.spellchecker.dictionary.normaliser.impl;
+package com.paytmmall.spellchecker.dictionary.reader.impl;
 
 import com.paytmmall.spellchecker.cache.CacheApi;
 import com.paytmmall.spellchecker.cache.UserQueryTokenCache;
 import com.paytmmall.spellchecker.dictionary.Constants;
-import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
+import com.paytmmall.spellchecker.dictionary.reader.TokenReader;
 import com.paytmmall.spellchecker.metrics.MetricsAgent;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.apache.commons.lang3.Range;
-import org.apache.commons.lang3.tuple.Pair;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +21,8 @@ import java.io.FileReader;
 import java.io.IOException;
 
 @Service
-public class UserQueryTokenNormaliser implements Normaliser {
-    private static final Logger logger = LoggerFactory.getLogger(UserQueryTokenNormaliser.class);
+public class UserQueryTokenTokenReader implements TokenReader {
+    private static final Logger logger = LoggerFactory.getLogger(UserQueryTokenTokenReader.class);
 
     @Value("${input.file.location}")
     private String inputFileLocation;
@@ -37,10 +37,14 @@ public class UserQueryTokenNormaliser implements Normaliser {
     private MetricsAgent metricsAgent;
 
     @Override
-    public void normalise() throws IOException {
+    public void read() throws IOException {
         Range<Double> range = this.getRange(inputFileLocation + "/" + inputFileName,
                 this.userQueryTokenCache);
-        this.normaliserUtil(range, this.userQueryTokenCache);
+        this.normaliserUtil(
+                Range.between(Constants.USER_QUERY_RANGE_MIN, Constants.USER_QUERY_RANGE_MAX),
+                range,
+                this.userQueryTokenCache
+        );
        logger.info("User tokens file write complete");
     }
 
@@ -58,7 +62,7 @@ public class UserQueryTokenNormaliser implements Normaliser {
             int len = temp_row.length;
             if (len != 3) { // if row is not well formatted than ignore it
                 metricsAgent.recordMetricsEvents("invalid_file_row_user_tokens");
-                logger.warn("invalid row format for userQueryToken file ", st);
+                logger.warn("invalid row format for userQueryToken file {}", st);
                 continue;
             }
 
@@ -89,16 +93,18 @@ public class UserQueryTokenNormaliser implements Normaliser {
                 if (FilterKeywordsUtil.isStopWord(name) || FilterKeywordsUtil.isWHiteListedToken(name)) continue;
 
                 double existingOriginalScore = 0.0;
-                double existingNormalisedScore = 0.0;
 
-                if (userQueryTokenCache.get(name) != null) {
-                    Pair<Double,Double> scores = userQueryTokenCache.get(name);
-
+                Pair<Double, Double> score = userQueryTokenCache.get(name);
+                if (score != null) {
+                    existingOriginalScore =score.getValue0();
+                    if (existingOriginalScore > priority){
+                        priority = existingOriginalScore;
+                        score = score.setAt0(priority);
+                    }
+                }else {
+                    score = new Pair<>(priority, null);
                 }
-
-                if (temp_value > priority) priority = temp_value;
-
-                userQueryTokenCache.put(name, priority);
+                userQueryTokenCache.put(name, score); // keep normalised value null
             }
 
         }

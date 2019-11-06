@@ -1,16 +1,16 @@
-package com.paytmmall.spellchecker.dictionary.normaliser;
+package com.paytmmall.spellchecker.dictionary.reader;
 
 import com.paytmmall.spellchecker.cache.CacheApi;
 import org.apache.commons.lang3.Range;
 import org.javatuples.Pair;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Component
-public class Normaliser {
-    public void normaliserUtil(Range<Double> normalisedRange, Range<Double> range, CacheApi<String,
-            Pair<Double, Double>> cacheApi) {
+public interface TokenReader {
+    public void read() throws IOException;
+    
+    public default void normaliserUtil(Range<Double> normalisedRange, Range<Double> range, CacheApi<String,
+            Pair<Double,Double>> cacheApi) {
         for (String key : cacheApi.keySet()) {
             Pair<Double, Double> score = cacheApi.get(key);
             double fetchedValue = score.getValue0();

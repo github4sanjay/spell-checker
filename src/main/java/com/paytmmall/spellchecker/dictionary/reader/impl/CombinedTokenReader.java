@@ -1,6 +1,6 @@
-package com.paytmmall.spellchecker.dictionary.normaliser.impl;
+package com.paytmmall.spellchecker.dictionary.reader.impl;
 
-import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
+import com.paytmmall.spellchecker.dictionary.reader.TokenReader;
 import com.paytmmall.spellchecker.exception.CustomExceptions;
 import com.paytmmall.spellchecker.metrics.MetricsAgent;
 import org.slf4j.Logger;
@@ -13,23 +13,23 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Service
-public class CombinedNormaliser implements Normaliser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CombinedNormaliser.class);
+public class CombinedTokenReader implements TokenReader {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CombinedTokenReader.class);
 
     @Autowired
-    private CatalogTokensNormaliser catalogTokensNormaliser;
+    private CatalogTokensTokenReader catalogTokensNormaliser;
 
     @Autowired
-    private EnglishDictionaryNormaliser englishDictionaryNormaliser;
+    private EnglishDictionaryTokenReader englishDictionaryNormaliser;
 
     @Autowired
-    private UserQueryTokenNormaliser userQueryTokenNormaliser;
+    private UserQueryTokenTokenReader userQueryTokenNormaliser;
 
     @Autowired
     private MetricsAgent metricsAgent;
 
     @Override
-    public void normalise() throws IOException {
+    public void read() throws IOException {
         CompletableFuture<Void> future1 = getCompletableFutureForNormaliser(catalogTokensNormaliser,
                 "Catalog Tokens");
         CompletableFuture<Void> future2 = getCompletableFutureForNormaliser(englishDictionaryNormaliser,
@@ -49,10 +49,10 @@ public class CombinedNormaliser implements Normaliser {
         }
     }
 
-    private CompletableFuture<Void> getCompletableFutureForNormaliser(Normaliser normaliser, String source) {
+    private CompletableFuture<Void> getCompletableFutureForNormaliser(TokenReader tokenReader, String source) {
         return CompletableFuture.runAsync(() -> {
             try {
-                normaliser.normalise();
+                tokenReader.read();
             } catch (IOException e) {
                 metricsAgent.recordMetricsEvents("normalisation_file_read_error");
                 LOGGER.error("Error during {} file read. Exception: {}", source, e);
