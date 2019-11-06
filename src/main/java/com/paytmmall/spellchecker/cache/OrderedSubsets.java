@@ -2,14 +2,14 @@ package com.paytmmall.spellchecker.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 
-@Service
+@Component
 public class OrderedSubsets implements CacheApi<Integer, String[]> {
 
     private static final Cache<Integer, String[]> cache = Caffeine.newBuilder()
