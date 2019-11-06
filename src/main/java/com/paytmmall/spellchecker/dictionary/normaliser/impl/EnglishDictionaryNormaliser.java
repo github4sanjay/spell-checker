@@ -3,6 +3,7 @@ package com.paytmmall.spellchecker.dictionary.normaliser.impl;
 import com.paytmmall.spellchecker.cache.CacheApi;
 import com.paytmmall.spellchecker.cache.EnglishDictionaryCache;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
+import com.paytmmall.spellchecker.metrics.MetricsAgent;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.apache.commons.lang3.Range;
@@ -30,6 +31,9 @@ public class EnglishDictionaryNormaliser implements Normaliser {
     @Autowired
     private EnglishDictionaryCache englishDictionaryCache;
 
+    @Autowired
+    private MetricsAgent metricsAgent;
+
     @Override
     public void normalise() throws IOException {
         Range<Double> range = this.getRange(inputFileLocation + "/" + inputFileName,
@@ -50,6 +54,7 @@ public class EnglishDictionaryNormaliser implements Normaliser {
             int len = temp_row.length;
 
             if (len < 2) {
+                metricsAgent.recordMetricsEvents("invalid_file_row_english_dictionary");
                 logger.warn("invalid row format for English Dictionary file ", st);
                 continue;
             }
@@ -63,6 +68,7 @@ public class EnglishDictionaryNormaliser implements Normaliser {
             try {
                 count = Double.parseDouble(temp_row[len - 1]);
             } catch (Exception e) {
+                metricsAgent.recordMetricsEvents("invalid_file_row_english_dictionary");
                 logger.error("invalid row values for English Dictionary file ", e);
                 continue;
             }

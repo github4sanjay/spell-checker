@@ -4,6 +4,7 @@ import com.paytmmall.spellchecker.cache.CacheApi;
 import com.paytmmall.spellchecker.cache.UserQueryTokenCache;
 import com.paytmmall.spellchecker.dictionary.Constants;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
+import com.paytmmall.spellchecker.metrics.MetricsAgent;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.apache.commons.lang3.Range;
@@ -31,6 +32,9 @@ public class UserQueryTokenNormaliser implements Normaliser {
     @Autowired
     private UserQueryTokenCache userQueryTokenCache;
 
+    @Autowired
+    private MetricsAgent metricsAgent;
+
     @Override
     public void normalise() throws IOException {
         Range<Double> range = this.getRange(inputFileLocation + "/" + inputFileName,
@@ -51,6 +55,7 @@ public class UserQueryTokenNormaliser implements Normaliser {
             String[] temp_row = st.split(","); // split every row into token, impression, click
             int len = temp_row.length;
             if (len != 3) { // if row is not well formatted than ignore it
+                metricsAgent.recordMetricsEvents("invalid_file_row_user_tokens");
                 logger.warn("invalid row format for userQueryToken file ", st);
                 continue;
             }
@@ -64,6 +69,7 @@ public class UserQueryTokenNormaliser implements Normaliser {
                 clicks = Double.parseDouble(temp_row[len - 2]);
                 impressions = Double.parseDouble(temp_row[len - 1]);
             } catch (Exception e) {
+                metricsAgent.recordMetricsEvents("invalid_file_row_user_tokens");
                 logger.error("invalid row values for userQueryToken file ", e);
                 continue;
             }

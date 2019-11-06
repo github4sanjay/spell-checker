@@ -3,6 +3,7 @@ package com.paytmmall.spellchecker.dictionary.normaliser.impl;
 import com.paytmmall.spellchecker.cache.CacheApi;
 import com.paytmmall.spellchecker.cache.CatalogTokenCache;
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
+import com.paytmmall.spellchecker.metrics.MetricsAgent;
 import com.paytmmall.spellchecker.util.FilterKeywordsUtil;
 import com.paytmmall.spellchecker.util.ResourceUtil;
 import org.apache.commons.lang3.Range;
@@ -31,6 +32,9 @@ public class CatalogTokensNormaliser implements Normaliser {
     @Autowired
     private CatalogTokenCache catalogTokenCache;
 
+    @Autowired
+    MetricsAgent metricsAgent;
+
     @Override
     public void normalise() throws IOException {
         Range<Double> range = this.getRange(inputFileLocation + "/" + inputFileName,
@@ -51,6 +55,7 @@ public class CatalogTokensNormaliser implements Normaliser {
             String[] temp_row = st.split("=>");
             int len = temp_row.length;
             if (len < 2) {
+                metricsAgent.recordMetricsEvents("invalid_file_row_catalog_tokens");
                 logger.warn("invalid row format for Catalog Tokens file ", st);
                 continue;
             }

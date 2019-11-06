@@ -2,6 +2,7 @@ package com.paytmmall.spellchecker.dictionary.normaliser.impl;
 
 import com.paytmmall.spellchecker.dictionary.normaliser.Normaliser;
 import com.paytmmall.spellchecker.exception.CustomExceptions;
+import com.paytmmall.spellchecker.metrics.MetricsAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class CombinedNormaliser implements Normaliser {
     @Autowired
     private UserQueryTokenNormaliser userQueryTokenNormaliser;
 
+    @Autowired
+    private MetricsAgent metricsAgent;
+
     @Override
     public void normalise() throws IOException {
         CompletableFuture<Void> future1 = getCompletableFutureForNormaliser(catalogTokensNormaliser,
@@ -39,6 +43,7 @@ public class CombinedNormaliser implements Normaliser {
         try {
             combinedFuture.get(); // wait for all three to complete
         } catch (InterruptedException | ExecutionException e) {
+            metricsAgent.recordMetricsEvents("normalisation_error");
             LOGGER.error("Error occurred during normalisation of token files ", e);
             throw new CustomExceptions.FileReadException(e.getMessage());
         }
@@ -49,6 +54,7 @@ public class CombinedNormaliser implements Normaliser {
             try {
                 normaliser.normalise();
             } catch (IOException e) {
+                metricsAgent.recordMetricsEvents("normalisation_file_read_error");
                 LOGGER.error("Error during {} file read. Exception: {}", source, e);
                 throw new CustomExceptions.FileReadException(e.getMessage());
             }
