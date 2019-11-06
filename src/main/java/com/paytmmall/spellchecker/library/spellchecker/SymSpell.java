@@ -5,7 +5,6 @@ import com.paytmmall.spellchecker.cache.OrderedSubsets;
 import com.paytmmall.spellchecker.cache.OriginalWordsCache;
 import com.paytmmall.spellchecker.exception.CustomExceptions;
 import com.paytmmall.spellchecker.util.ResourceUtil;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -16,6 +15,7 @@ import java.util.regex.Pattern;
 
 
 public class SymSpell {
+
 
     private static int defaultMaxEditDistance = 2;
     private static int defaultPrefixLength = 7;

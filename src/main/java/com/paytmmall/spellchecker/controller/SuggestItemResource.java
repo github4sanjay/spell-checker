@@ -2,6 +2,7 @@ package com.paytmmall.spellchecker.controller;
 
 import com.paytmmall.spellchecker.exception.CustomExceptions;
 import com.paytmmall.spellchecker.library.spellchecker.SuggestItem;
+import com.paytmmall.spellchecker.metrics.MetricsAgent;
 import com.paytmmall.spellchecker.service.SuggestItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,9 @@ public class SuggestItemResource {
 
     @Autowired
     private SuggestItemService suggestItemService;
+
+    @Autowired
+    MetricsAgent metricsAgent;
 
     @GetMapping("/")
     @ResponseBody

@@ -79,6 +79,11 @@ public class MetricsAgent {
                 "environment:" + search_spell_checker_env);
     }
 
+    public void recordResponseCodeCount(String event, int httpCode) {
+        prometheusClient.increment("stat.responsecode", "event:" + event, "http_code:" + httpCode);
+
+    }
+
     /**
      * Used to record ERROR code of api
      */
@@ -107,96 +112,18 @@ public class MetricsAgent {
                 "threadName:" + Thread.currentThread().getName());
     }
 
-    public void recordScrollTimings(String eventName, long timeTaken) {
-
-        prometheusClient.recordExecutionTime(eventName, timeTaken, "code:" + eventName,
-                "environment:" + search_spell_checker_env);
-    }
-
-    public void recordKafkaPSPConsumeCounts(String eventName) {
-
-        prometheusClient.increment(eventName, "code:" + eventName,
-                "environment:" + search_spell_checker_env,
-                "threadName:" + Thread.currentThread().getName());
-    }
-
-    public void recordMySQLFeedCounts(String eventName) {
-
-        prometheusClient.increment(eventName, "code:" + eventName,
-                "environment:" + search_spell_checker_env,
-                "threadName:" + Thread.currentThread().getName());
-    }
-
-    public void recordPSPESEvent(String eventName, long delta) {
-
-        prometheusClient.count(eventName, delta, "code:" + eventName,
-                "environment:" + search_spell_checker_env);
-    }
-
-    public void recordPSPKafkaGenericError(String eventName) {
-
-        prometheusClient.increment(eventName, "code:" + eventName,
-                "environment:" + search_spell_checker_env);
-    }
-
-    public void recordMySQLTimings(String apiName, long timeTaken) {
-
-        prometheusClient.recordExecutionTime("psp_mysql_timings_" + apiName, timeTaken,
-                "environment:" + search_spell_checker_env,
-                "threadName:" + Thread.currentThread().getName());
-    }
-
-    public void recordKafkaProcessingTimings(String apiName, long timeTaken) {
-
-        prometheusClient.recordExecutionTime("psp_message_processing_timings", timeTaken,
-                "api_name:" + apiName, "environment:" + search_spell_checker_env);
-    }
-
-    public void recordWorkerThreadError(String eventName, String range) {
-
-        prometheusClient.increment(eventName, "code:" + eventName,
-                "environment:" + search_spell_checker_env, "range:" + range,
-                "threadName:" + Thread.currentThread().getName());
-    }
-
     public void recordMetricsEvents(String eventName) {
 
         prometheusClient.increment(eventName, "code:" + eventName,
                 "environment:" + search_spell_checker_env);
     }
 
-    public void recordRawSearchDocumentsCount(String eventName) {
 
-        prometheusClient.increment(eventName, "code:" + eventName,
-                "environment:" + search_spell_checker_env,
-                "threadName:" + Thread.currentThread().getName());
-    }
-
-    public void recordProcessedDocPushCount(String eventName) {
-
-        prometheusClient.increment(eventName, "code:" + eventName,
-                "environment:" + search_spell_checker_env,
-                "threadName:" + Thread.currentThread().getName());
-    }
-
-    public void recordUpdateDocPushCount(String eventName) {
-
-        prometheusClient.increment(eventName, "code:" + eventName,
-                "environment:" + search_spell_checker_env,
-                "threadName:" + Thread.currentThread().getName());
-    }
-
-    public void recordProcessedDocIngestionTime(long timeTaken) {
-
-        prometheusClient.recordExecutionTime("es_batch_message_timings", timeTaken,
-                "environment:" + search_spell_checker_env);
-    }
-
-    public void recordDeleteDocPushCount(String eventName) {
-
-        prometheusClient.increment(eventName, "code:" + eventName,
-                "environment:" + search_spell_checker_env,
-                "threadName:" + Thread.currentThread().getName());
+    /**
+     * Used to record execution time of api
+     */
+    public void recordExecutionTimeOfEvent(String eventName, long timeTaken) {
+        prometheusClient.recordExecutionTime("stats.latency", timeTaken, "event:" + eventName);
     }
 
     public enum Metric {
